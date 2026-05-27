@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* Freeze first column in tables with .freeze-first-col class */
+.freeze-first-col th:first-child,
+.freeze-first-col td:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 20 !important;
+}
+
+/* Add shadow separator for frozen column to look clean */
+.freeze-first-col th:first-child::after,
+.freeze-first-col td:first-child::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+/* Ensure background color stays solid on sticky cells so columns don't overlap underneath */
+.freeze-first-col th:first-child {
+  background-color: #f8fafc !important; /* bg-slate-50 */
+}
+.dark .freeze-first-col th:first-child {
+  background-color: #020617 !important; /* bg-slate-950 */
+}
+
+.freeze-first-col td:first-child {
+  background-color: #ffffff !important; /* bg-white */
+}
+.dark .freeze-first-col td:first-child {
+  background-color: #0f172a !important; /* bg-slate-900 */
+}
+
+/* On row hover, also color the sticky column cell to match the rest of the row */
+.freeze-first-col tr:hover td:first-child {
+  background-color: #f1f5f9 !important; /* bg-slate-100 */
+}
+.dark .freeze-first-col tr:hover td:first-child {
+  background-color: #0b0f19 !important; /* bg-slate-950/80 */
+}
+
+/* Prevent colSpan rows (like section headers in CompareMatrix) from being frozen */
+.freeze-first-col td[colspan]:first-child {
+  position: relative !important;
+  left: auto !important;
+  z-index: 1 !important;
+  background-color: transparent !important;
+}
+.freeze-first-col td[colspan]:first-child::after {
+  display: none !important;
+}
+
+/* Custom scrollbar styling for horizontal scroll tables */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Make light gray text darker and more readable in light mode (improves contrast) */
+html:not(.dark) .text-slate-400 {
+  color: #576574 !important; /* Sourced to a darker, richer charcoal gray */
+}
+html:not(.dark) .text-slate-500 {
+  color: #3b4b5c !important; /* Even darker slate gray */
+}
+html:not(.dark) .text-slate-600 {
+  color: #2c3a47 !important; /* Near black slate gray for perfect readability */
+}
+html:not(.dark) .text-slate-300 {
+  color: #8395a7 !important; /* Darkened from light gray to mid-gray */
+}
+html:not(.dark) .text-slate-400.group-hover\:text-white,
+html:not(.dark) .text-slate-500.group-hover\:text-white,
+html:not(.dark) .text-slate-600.group-hover\:text-white {
+  color: white !important; /* Prevent hover text override bugs */
+}
