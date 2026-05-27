@@ -12,9 +12,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "strict": false
   },
-  "include": ["main.tsx", "App.tsx", "index.html"]
+  "include": ["src"]
 }
