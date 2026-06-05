@@ -43,9 +43,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {[
               { id: 'brokers', label: 'Directory', icon: Layers },
               { id: 'compare', label: 'Compare Tool', icon: ArrowLeftRight, badge: compareCount > 0 ? compareCount : undefined },
-              { id: 'finder', label: 'Broker Finder Quiz', icon: Sparkles },
-              { id: 'calculator', label: 'Fee Estimator', icon: Calculator },
+              { id: 'calculator', label: 'Brokerage Calculator', icon: Calculator },
               { id: 'investment', label: 'SIP Calculator', icon: PiggyBank },
+              { id: 'finder', label: 'Broker Finder Quiz', icon: Sparkles },
               { id: 'blogs', label: 'Trading Guides & Blogs', icon: BookOpen },
               { id: 'glossary', label: 'Trading Glossary', icon: GraduationCap }
             ].map((link) => {
@@ -96,9 +96,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           {[
             { id: 'brokers', label: 'Directory', icon: Layers },
             { id: 'compare', label: 'Compare', icon: ArrowLeftRight, badge: compareCount > 0 ? compareCount : undefined },
-            { id: 'finder', label: 'Quiz', icon: Sparkles },
-            { id: 'calculator', label: 'Fees', icon: Calculator },
+            { id: 'calculator', label: 'Brokerage', icon: Calculator },
             { id: 'investment', label: 'SIP', icon: PiggyBank },
+            { id: 'finder', label: 'Quiz', icon: Sparkles },
             { id: 'blogs', label: 'Blogs', icon: BookOpen },
             { id: 'glossary', label: 'Glossary', icon: GraduationCap }
           ].map((link) => {
