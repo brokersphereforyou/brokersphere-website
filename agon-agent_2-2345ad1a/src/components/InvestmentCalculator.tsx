@@ -3,29 +3,32 @@ import { useState } from 'react';
 export default function InvestmentCalculator() {
   const [mode, setMode] = useState<'sip' | 'lumpsum'>('sip');
 
-  const [sipAmount, setSipAmount] = useState(5000);
-  const [lumpsumAmount, setLumpsumAmount] = useState(100000);
-  const [rate, setRate] = useState(12);
-  const [years, setYears] = useState(10);
+  const [sipAmount, setSipAmount] = useState('5000');
+  const [lumpsumAmount, setLumpsumAmount] = useState('100000');
+  const [rate, setRate] = useState('12');
+  const [years, setYears] = useState('10');
 
-  const months = years * 12;
-  const monthlyRate = rate / 12 / 100;
-  const annualRate = rate / 100;
+  const sip = Number(sipAmount) || 0;
+  const lumpsum = Number(lumpsumAmount) || 0;
+  const annualReturn = Number(rate) || 0;
+  const investmentYears = Number(years) || 0;
+
+  const months = investmentYears * 12;
+  const monthlyRate = annualReturn / 12 / 100;
+  const annualRate = annualReturn / 100;
 
   const sipFutureValue =
     monthlyRate > 0
-      ? sipAmount *
+      ? sip *
         (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) *
           (1 + monthlyRate))
-      : sipAmount * months;
+      : sip * months;
 
-  const sipInvested = sipAmount * months;
+  const sipInvested = sip * months;
   const sipReturns = sipFutureValue - sipInvested;
 
-  const lumpsumFutureValue =
-    lumpsumAmount * Math.pow(1 + annualRate, years);
-
-  const lumpsumReturns = lumpsumFutureValue - lumpsumAmount;
+  const lumpsumFutureValue = lumpsum * Math.pow(1 + annualRate, investmentYears);
+  const lumpsumReturns = lumpsumFutureValue - lumpsum;
 
   const formatCurrency = (value: number) =>
     `₹${Math.round(value).toLocaleString('en-IN')}`;
@@ -71,55 +74,45 @@ export default function InvestmentCalculator() {
             <div>
               {mode === 'sip' ? (
                 <>
-                  <label className="block mb-2 font-medium">
-                    Monthly SIP Amount
-                  </label>
+                  <label className="block mb-2 font-medium">Monthly SIP Amount</label>
                   <input
                     type="number"
                     value={sipAmount}
-                    onChange={(e) => setSipAmount(Number(e.target.value))}
+                    onChange={(e) => setSipAmount(e.target.value)}
                     className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
                   />
                 </>
               ) : (
                 <>
-                  <label className="block mb-2 font-medium">
-                    Lumpsum Investment Amount
-                  </label>
+                  <label className="block mb-2 font-medium">Lumpsum Investment Amount</label>
                   <input
                     type="number"
                     value={lumpsumAmount}
-                    onChange={(e) => setLumpsumAmount(Number(e.target.value))}
+                    onChange={(e) => setLumpsumAmount(e.target.value)}
                     className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
                   />
                 </>
               )}
 
-              <label className="block mb-2 font-medium">
-                Expected Annual Return (%)
-              </label>
+              <label className="block mb-2 font-medium">Expected Annual Return (%)</label>
               <input
                 type="number"
                 value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
+                onChange={(e) => setRate(e.target.value)}
                 className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
 
-              <label className="block mb-2 font-medium">
-                Investment Period (Years)
-              </label>
+              <label className="block mb-2 font-medium">Investment Period (Years)</label>
               <input
                 type="number"
                 value={years}
-                onChange={(e) => setYears(Number(e.target.value))}
+                onChange={(e) => setYears(e.target.value)}
                 className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
-              <h3 className="text-xl font-bold mb-5">
-                Estimated Results
-              </h3>
+              <h3 className="text-xl font-bold mb-5">Estimated Results</h3>
 
               {mode === 'sip' ? (
                 <div className="space-y-4">
@@ -131,7 +124,7 @@ export default function InvestmentCalculator() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p>Invested Amount: <strong>{formatCurrency(lumpsumAmount)}</strong></p>
+                  <p>Invested Amount: <strong>{formatCurrency(lumpsum)}</strong></p>
                   <p>Estimated Returns: <strong>{formatCurrency(lumpsumReturns)}</strong></p>
                   <p className="text-2xl font-bold text-emerald-600">
                     Total Value: {formatCurrency(lumpsumFutureValue)}
