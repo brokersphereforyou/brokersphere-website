@@ -7,40 +7,88 @@ type BreakupRow = {
   tax: number;
 };
 
+type DeductionItem = {
+  id: string;
+  section: string;
+  name: string;
+  amount: string;
+};
+
+type ExpenseItem = {
+  id: string;
+  name: string;
+  amount: string;
+};
+
 export default function IncomeTaxCalculator() {
   const [annualIncome, setAnnualIncome] = useState('1200000');
-  const [monthlyExpenses, setMonthlyExpenses] = useState('40000');
-  const [currentInvestment, setCurrentInvestment] = useState('50000');
-  const [healthInsurance, setHealthInsurance] = useState('25000');
-  const [npsContribution, setNpsContribution] = useState('0');
-  const [homeLoanInterest, setHomeLoanInterest] = useState('0');
+
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([
+    { id: 'rent', name: 'House Rent', amount: '20000' },
+    { id: 'food', name: 'Food & Groceries', amount: '10000' },
+    { id: 'emi', name: 'EMI / Loan Payments', amount: '0' },
+    { id: 'other', name: 'Other Monthly Expenses', amount: '10000' }
+  ]);
+
+  const [deductions, setDeductions] = useState<DeductionItem[]>([
+    { id: 'epf', section: '80C', name: 'EPF / PPF / ELSS / Life Insurance / Tax Saver FD', amount: '50000' },
+    { id: 'health-self', section: '80D', name: 'Health Insurance - Self & Family', amount: '25000' },
+    { id: 'health-parents', section: '80D', name: 'Health Insurance - Parents', amount: '0' },
+    { id: 'nps', section: '80CCD(1B)', name: 'NPS Contribution', amount: '0' },
+    { id: 'home-loan-interest', section: '24(b)', name: 'Home Loan Interest', amount: '0' }
+  ]);
 
   const [showNewBreakup, setShowNewBreakup] = useState(false);
   const [showOldBreakup, setShowOldBreakup] = useState(false);
 
   const income = Number(annualIncome) || 0;
-  const expenses = Number(monthlyExpenses) || 0;
-  const investment80C = Math.min(Number(currentInvestment) || 0, 150000);
-  const insurance80D = Math.min(Number(healthInsurance) || 0, 25000);
-  const nps80CCD = Math.min(Number(npsContribution) || 0, 50000);
-  const homeLoan = Math.min(Number(homeLoanInterest) || 0, 200000);
+
+  const formatCurrency = (value: number) =>
+    `₹${Math.round(value).toLocaleString('en-IN')}`;
+
+  const updateExpense = (id: string, value: string) => {
+    setExpenses((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, amount: value } : item))
+    );
+  };
+
+  const updateDeduction = (id: string, value: string) => {
+    setDeductions((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, amount: value } : item))
+    );
+  };
+
+  const getDeductionAmount = (id: string) =>
+    Number(deductions.find((item) => item.id === id)?.amount) || 0;
+
+  const totalMonthlyExpenses = expenses.reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0
+  );
+
+  const annualExpenses = totalMonthlyExpenses * 12;
+
+  const deduction80C = Math.min(getDeductionAmount('epf'), 150000);
+  const deduction80DSelf = Math.min(getDeductionAmount('health-self'), 25000);
+  const deduction80DParents = Math.min(getDeductionAmount('health-parents'), 50000);
+  const deductionNps = Math.min(getDeductionAmount('nps'), 50000);
+  const deductionHomeLoanInterest = Math.min(getDeductionAmount('home-loan-interest'), 200000);
+
+  const totalOldRegimeDeductions =
+    deduction80C +
+    deduction80DSelf +
+    deduction80DParents +
+    deductionNps +
+    deductionHomeLoanInterest;
 
   const newStandardDeduction = 75000;
   const oldStandardDeduction = 50000;
 
   const taxableNew = Math.max(income - newStandardDeduction, 0);
   const taxableOld = Math.max(
-    income -
-      oldStandardDeduction -
-      investment80C -
-      insurance80D -
-      nps80CCD -
-      homeLoan,
+    income - oldStandardDeduction - totalOldRegimeDeductions,
     0
   );
-
-  const formatCurrency = (value: number) =>
-    `₹${Math.round(value).toLocaleString('en-IN')}`;
 
   const calculateNewRegime = (amount: number) => {
     const slabs = [
@@ -124,17 +172,18 @@ export default function IncomeTaxCalculator() {
   const taxSaving = Math.abs(newResult.totalTax - oldResult.totalTax);
 
   const netAnnualNew = income - newResult.totalTax;
-  const netMonthlyNew = netAnnualNew / 12;
-
   const netAnnualOld = income - oldResult.totalTax;
+
+  const netMonthlyNew = netAnnualNew / 12;
   const netMonthlyOld = netAnnualOld / 12;
 
-  const annualExpenses = expenses * 12;
-  const currentSavingsAfterExpenses = Math.max(income - annualExpenses, 0);
+  const availableAfterExpenses = Math.max(income - annualExpenses, 0);
 
-  const remaining80C = Math.max(150000 - investment80C, 0);
-  const remainingNps = Math.max(50000 - nps80CCD, 0);
-  const remainingHealthInsurance = Math.max(25000 - insurance80D, 0);
+  const remaining80C = Math.max(150000 - deduction80C, 0);
+  const remaining80DSelf = Math.max(25000 - deduction80DSelf, 0);
+  const remaining80DParents = Math.max(50000 - deduction80DParents, 0);
+  const remainingNps = Math.max(50000 - deductionNps, 0);
+  const remainingHomeLoan = Math.max(200000 - deductionHomeLoanInterest, 0);
 
   const marginalOldRate =
     taxableOld > 1000000
@@ -145,22 +194,63 @@ export default function IncomeTaxCalculator() {
       ? 0.05
       : 0;
 
-  const scenario1Investment =
-    remaining80C + remainingNps + remainingHealthInsurance;
+  const calculateFutureValue = (annualInvestment: number, rate: number, years: number) => {
+    if (annualInvestment <= 0) return 0;
+    let value = 0;
+    for (let i = 0; i < years; i++) {
+      value = (value + annualInvestment) * (1 + rate);
+    }
+    return value;
+  };
 
-  const scenario1TaxSaving = scenario1Investment * marginalOldRate * 1.04;
+  const scenario1 = {
+    title: 'Maximum Tax Saving',
+    suitability: 'Best for long-term wealth creation and retirement planning.',
+    requirement: 'Long-term money requirement',
+    items: [
+      { name: '80C - ELSS / PPF / EPF / Life Insurance / Tax Saver FD', amount: remaining80C, returnRate: 0.10 },
+      { name: 'NPS - Section 80CCD(1B)', amount: remainingNps, returnRate: 0.10 },
+      { name: 'Health Insurance - Self & Family', amount: remaining80DSelf, returnRate: 0 },
+      { name: 'Health Insurance - Parents', amount: remaining80DParents, returnRate: 0 }
+    ]
+  };
 
-  const scenario2Investment =
-    Math.min(remaining80C, 75000) +
-    Math.min(remainingNps, 25000) +
-    Math.min(remainingHealthInsurance, 15000);
+  const scenario2 = {
+    title: 'Balanced Tax Saving Plan',
+    suitability: 'Best for users who may need money in 3-5 years but still want tax saving.',
+    requirement: 'Medium-term money requirement',
+    items: [
+      { name: '80C - ELSS / PPF / Tax Saver FD', amount: Math.min(remaining80C, 75000), returnRate: 0.09 },
+      { name: 'NPS - Section 80CCD(1B)', amount: Math.min(remainingNps, 25000), returnRate: 0.10 },
+      { name: 'Health Insurance - Self & Family', amount: Math.min(remaining80DSelf, 15000), returnRate: 0 }
+    ]
+  };
 
-  const scenario2TaxSaving = scenario2Investment * marginalOldRate * 1.04;
+  const scenario3 = {
+    title: 'Liquidity First Plan',
+    suitability: 'Best for emergency fund, job change, home purchase or short-term goals.',
+    requirement: 'Short-term money requirement',
+    items: [
+      { name: '80C - Minimal ELSS / Tax Saver FD', amount: Math.min(remaining80C, 25000), returnRate: 0.07 },
+      { name: 'Health Insurance - Self & Family', amount: Math.min(remaining80DSelf, 10000), returnRate: 0 }
+    ]
+  };
 
-  const scenario3Investment =
-    Math.min(remaining80C, 25000) + Math.min(remainingHealthInsurance, 10000);
+  const scenarios = [scenario1, scenario2, scenario3].map((scenario) => {
+    const totalInvestment = scenario.items.reduce((sum, item) => sum + item.amount, 0);
+    const taxSaved = totalInvestment * marginalOldRate * 1.04;
 
-  const scenario3TaxSaving = scenario3Investment * marginalOldRate * 1.04;
+    const estimated10YearValue = scenario.items.reduce((sum, item) => {
+      return sum + calculateFutureValue(item.amount, item.returnRate, 10);
+    }, 0);
+
+    return {
+      ...scenario,
+      totalInvestment,
+      taxSaved,
+      estimated10YearValue
+    };
+  });
 
   const TaxBreakupTable = ({ result }: { result: ReturnType<typeof calculateNewRegime> }) => (
     <div className="mt-4 overflow-x-auto border border-slate-200 rounded-xl">
@@ -209,240 +299,239 @@ export default function IncomeTaxCalculator() {
 
   return (
     <section className="py-16 px-4 bg-white text-slate-900">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
             Income Tax Calculator
           </h2>
           <p className="text-slate-600">
-            Compare old vs new tax regime, estimate monthly take-home salary and get old-regime tax-saving scenarios.
+            Calculate income tax, estimate take-home salary, and explore old-regime tax saving scenarios.
           </p>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6">
-              <h3 className="text-xl font-bold mb-5">Income & Investment Details</h3>
-
-              <label className="block mb-2 font-medium">
-                Annual Gross Income Including Bonus
-              </label>
-              <input
-                type="number"
-                value={annualIncome}
-                onChange={(e) => setAnnualIncome(e.target.value)}
-                className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
-              />
-
-              <label className="block mb-2 font-medium">
-                Monthly Expenses
-              </label>
-              <input
-                type="number"
-                value={monthlyExpenses}
-                onChange={(e) => setMonthlyExpenses(e.target.value)}
-                className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
-              />
-
-              <label className="block mb-2 font-medium">
-                Current 80C Investment
-              </label>
-              <input
-                type="number"
-                value={currentInvestment}
-                onChange={(e) => setCurrentInvestment(e.target.value)}
-                className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
-              />
-
-              <label className="block mb-2 font-medium">
-                Health Insurance Premium
-              </label>
-              <input
-                type="number"
-                value={healthInsurance}
-                onChange={(e) => setHealthInsurance(e.target.value)}
-                className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
-              />
-
-              <label className="block mb-2 font-medium">
-                NPS Contribution
-              </label>
-              <input
-                type="number"
-                value={npsContribution}
-                onChange={(e) => setNpsContribution(e.target.value)}
-                className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
-              />
-
-              <label className="block mb-2 font-medium">
-                Home Loan Interest
-              </label>
-              <input
-                type="number"
-                value={homeLoanInterest}
-                onChange={(e) => setHomeLoanInterest(e.target.value)}
-                className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
-              />
-
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800 leading-relaxed">
-                Standard deduction considered automatically:
-                <br />
-                <strong>New Regime:</strong> ₹75,000
-                <br />
-                <strong>Old Regime:</strong> ₹50,000
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-2xl p-6">
-              <h3 className="text-xl font-bold mb-5">Tax Result</h3>
-
-              <div className="space-y-4">
-                <p>
-                  Taxable Income - New Regime:{' '}
-                  <strong>{formatCurrency(taxableNew)}</strong>
-                </p>
-
-                <p>
-                  Taxable Income - Old Regime:{' '}
-                  <strong>{formatCurrency(taxableOld)}</strong>
-                </p>
-
-                <div className="border-t border-slate-200 pt-4">
-                  <button
-                    onClick={() => setShowNewBreakup(!showNewBreakup)}
-                    className="w-full text-left font-bold text-emerald-700 hover:underline"
-                  >
-                    New Regime Tax before Cess:{' '}
-                    {formatCurrency(newResult.taxAfterRebate)} {showNewBreakup ? '▲' : '▼'}
-                  </button>
-
-                  {showNewBreakup && <TaxBreakupTable result={newResult} />}
-
-                  <p className="mt-3">
-                    New Regime Cess 4%:{' '}
-                    <strong>{formatCurrency(newResult.cess)}</strong>
-                  </p>
-
-                  <p className="font-bold text-emerald-700 mt-2">
-                    Total Tax - New Regime: {formatCurrency(newResult.totalTax)}
-                  </p>
-
-                  <p className="text-sm text-slate-600 mt-1">
-                    Net Monthly Take Home - New Regime:{' '}
-                    <strong>{formatCurrency(netMonthlyNew)}</strong>
-                  </p>
-                </div>
-
-                <div className="border-t border-slate-200 pt-4">
-                  <button
-                    onClick={() => setShowOldBreakup(!showOldBreakup)}
-                    className="w-full text-left font-bold text-emerald-700 hover:underline"
-                  >
-                    Old Regime Tax before Cess:{' '}
-                    {formatCurrency(oldResult.taxAfterRebate)} {showOldBreakup ? '▲' : '▼'}
-                  </button>
-
-                  {showOldBreakup && <TaxBreakupTable result={oldResult} />}
-
-                  <p className="mt-3">
-                    Old Regime Cess 4%:{' '}
-                    <strong>{formatCurrency(oldResult.cess)}</strong>
-                  </p>
-
-                  <p className="font-bold text-emerald-700 mt-2">
-                    Total Tax - Old Regime: {formatCurrency(oldResult.totalTax)}
-                  </p>
-
-                  <p className="text-sm text-slate-600 mt-1">
-                    Net Monthly Take Home - Old Regime:{' '}
-                    <strong>{formatCurrency(netMonthlyOld)}</strong>
-                  </p>
-                </div>
-
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                  <p className="font-bold text-emerald-800">
-                    Better Option: {betterRegime}
-                  </p>
-                  <p className="text-sm text-emerald-700 mt-1">
-                    Estimated Tax Difference: {formatCurrency(taxSaving)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 bg-white border border-slate-200 rounded-2xl p-6">
-            <h3 className="text-xl font-bold mb-2">
-              Top 3 Old Regime Tax Saving Scenarios
-            </h3>
-            <p className="text-sm text-slate-500 mb-5">
-              These suggestions apply only to the old regime and are based on your current investments, expenses and possible liquidity needs.
+        <div className="space-y-8">
+          {/* PART 1 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-2xl font-bold mb-2">1. Income Tax Calculation</h3>
+            <p className="text-sm text-slate-500 mb-6">
+              Enter only your annual income here. Standard deduction is applied automatically.
             </p>
 
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="border border-emerald-100 bg-emerald-50 rounded-2xl p-5">
-                <h4 className="font-bold text-emerald-800 mb-2">
-                  1. Maximum Tax Saving
-                </h4>
-                <p className="text-sm text-slate-700 mb-3">
-                  Best for long-term wealth creation and users who do not need this money soon.
-                </p>
-                <p className="text-xs text-slate-600">
-                  Use remaining 80C, NPS and health insurance limits.
-                </p>
-                <p className="font-bold text-emerald-700 mt-3">
-                  Suggested Investment: {formatCurrency(scenario1Investment)}
-                </p>
-                <p className="font-bold text-emerald-700">
-                  Approx Tax Saving: {formatCurrency(scenario1TaxSaving)}
-                </p>
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                <label className="block mb-2 font-medium">
+                  Annual Gross Income Including Bonus
+                </label>
+                <input
+                  type="number"
+                  value={annualIncome}
+                  onChange={(e) => setAnnualIncome(e.target.value)}
+                  className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                />
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800 leading-relaxed">
+                  Standard deduction considered automatically:
+                  <br />
+                  <strong>New Regime:</strong> ₹75,000
+                  <br />
+                  <strong>Old Regime:</strong> ₹50,000
+                </div>
               </div>
 
-              <div className="border border-blue-100 bg-blue-50 rounded-2xl p-5">
-                <h4 className="font-bold text-blue-800 mb-2">
-                  2. Balanced Plan
-                </h4>
-                <p className="text-sm text-slate-700 mb-3">
-                  Best if you may need money in 3-5 years but still want tax savings.
-                </p>
-                <p className="text-xs text-slate-600">
-                  Split between 80C, NPS and insurance without locking too much cash.
-                </p>
-                <p className="font-bold text-blue-700 mt-3">
-                  Suggested Investment: {formatCurrency(scenario2Investment)}
-                </p>
-                <p className="font-bold text-blue-700">
-                  Approx Tax Saving: {formatCurrency(scenario2TaxSaving)}
-                </p>
-              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                <h4 className="text-xl font-bold mb-5">Tax Result</h4>
 
-              <div className="border border-amber-100 bg-amber-50 rounded-2xl p-5">
-                <h4 className="font-bold text-amber-800 mb-2">
-                  3. Liquidity First
-                </h4>
-                <p className="text-sm text-slate-700 mb-3">
-                  Best if you need money in the short term for emergency, job change, house purchase or loan repayment.
-                </p>
-                <p className="text-xs text-slate-600">
-                  Keep higher cash balance and invest only minimum amount for basic tax benefit.
-                </p>
-                <p className="font-bold text-amber-700 mt-3">
-                  Suggested Investment: {formatCurrency(scenario3Investment)}
-                </p>
-                <p className="font-bold text-amber-700">
-                  Approx Tax Saving: {formatCurrency(scenario3TaxSaving)}
-                </p>
-              </div>
-            </div>
+                <div className="space-y-4">
+                  <p>
+                    Taxable Income - New Regime:{' '}
+                    <strong>{formatCurrency(taxableNew)}</strong>
+                  </p>
 
-            <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700">
-              Estimated annual amount left after monthly expenses:{' '}
-              <strong>{formatCurrency(currentSavingsAfterExpenses)}</strong>
+                  <p>
+                    Taxable Income - Old Regime:{' '}
+                    <strong>{formatCurrency(taxableOld)}</strong>
+                  </p>
+
+                  <div className="border-t border-slate-200 pt-4">
+                    <button
+                      onClick={() => setShowNewBreakup(!showNewBreakup)}
+                      className="w-full text-left font-bold text-emerald-700 hover:underline"
+                    >
+                      New Regime Tax before Cess:{' '}
+                      {formatCurrency(newResult.taxAfterRebate)} {showNewBreakup ? '▲' : '▼'}
+                    </button>
+
+                    {showNewBreakup && <TaxBreakupTable result={newResult} />}
+
+                    <p className="mt-3">
+                      New Regime Cess 4%:{' '}
+                      <strong>{formatCurrency(newResult.cess)}</strong>
+                    </p>
+
+                    <p className="font-bold text-emerald-700 mt-2">
+                      Total Tax - New Regime: {formatCurrency(newResult.totalTax)}
+                    </p>
+
+                    <p className="text-sm text-slate-600 mt-1">
+                      Net Monthly Take Home - New Regime:{' '}
+                      <strong>{formatCurrency(netMonthlyNew)}</strong>
+                    </p>
+                  </div>
+
+                  <div className="border-t border-slate-200 pt-4">
+                    <button
+                      onClick={() => setShowOldBreakup(!showOldBreakup)}
+                      className="w-full text-left font-bold text-emerald-700 hover:underline"
+                    >
+                      Old Regime Tax before Cess:{' '}
+                      {formatCurrency(oldResult.taxAfterRebate)} {showOldBreakup ? '▲' : '▼'}
+                    </button>
+
+                    {showOldBreakup && <TaxBreakupTable result={oldResult} />}
+
+                    <p className="mt-3">
+                      Old Regime Cess 4%:{' '}
+                      <strong>{formatCurrency(oldResult.cess)}</strong>
+                    </p>
+
+                    <p className="font-bold text-emerald-700 mt-2">
+                      Total Tax - Old Regime: {formatCurrency(oldResult.totalTax)}
+                    </p>
+
+                    <p className="text-sm text-slate-600 mt-1">
+                      Net Monthly Take Home - Old Regime:{' '}
+                      <strong>{formatCurrency(netMonthlyOld)}</strong>
+                    </p>
+                  </div>
+
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                    <p className="font-bold text-emerald-800">
+                      Better Option: {betterRegime}
+                    </p>
+                    <p className="text-sm text-emerald-700 mt-1">
+                      Estimated Tax Difference: {formatCurrency(taxSaving)}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <p className="text-xs text-slate-500 mt-6 leading-relaxed">
-            Disclaimer: This is a simplified income tax calculator for educational purposes. It assumes resident individual taxation and does not include surcharge, marginal relief, capital gains, special-rate income, business income, detailed HRA calculation, employer NPS, house property loss rules, Form 16 adjustments or advanced deductions. Tax-saving scenarios are indicative and not financial advice. Please consult a qualified tax advisor before making tax or investment decisions.
+          {/* PART 2 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-2xl font-bold mb-2">2. Monthly Expenses & Deduction Profile</h3>
+            <p className="text-sm text-slate-500 mb-6">
+              Add your monthly expenses and current tax-saving investments. These values are used only for old-regime planning scenarios.
+            </p>
+
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                <h4 className="text-xl font-bold mb-5">Monthly Expenses</h4>
+
+                {expenses.map((item) => (
+                  <div key={item.id} className="mb-4">
+                    <label className="block mb-2 font-medium">{item.name}</label>
+                    <input
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) => updateExpense(item.id, e.target.value)}
+                      className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                    />
+                  </div>
+                ))}
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4">
+                  <p className="font-bold">
+                    Total Monthly Expenses: {formatCurrency(totalMonthlyExpenses)}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    Annual Expenses: {formatCurrency(annualExpenses)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                <h4 className="text-xl font-bold mb-5">Tax Deduction Items</h4>
+
+                {deductions.map((item) => (
+                  <div key={item.id} className="mb-4">
+                    <label className="block mb-2 font-medium">
+                      {item.section} - {item.name}
+                    </label>
+                    <input
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) => updateDeduction(item.id, e.target.value)}
+                      className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                    />
+                  </div>
+                ))}
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4">
+                  <p className="font-bold">
+                    Total Old-Regime Deductions Used: {formatCurrency(totalOldRegimeDeductions)}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    Estimated annual money left after expenses: {formatCurrency(availableAfterExpenses)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* PART 3 */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-2xl font-bold mb-2">3. Smart Old-Regime Tax Saving Scenarios</h3>
+            <p className="text-sm text-slate-500 mb-6">
+              These scenarios estimate how much more you can invest in eligible items to claim old-regime deductions.
+            </p>
+
+            <div className="grid lg:grid-cols-3 gap-4">
+              {scenarios.map((scenario, index) => (
+                <div key={scenario.title} className="bg-white border border-slate-200 rounded-2xl p-5">
+                  <h4 className="font-bold text-emerald-700 mb-2">
+                    {index + 1}. {scenario.title}
+                  </h4>
+
+                  <p className="text-sm text-slate-700 mb-2">
+                    {scenario.suitability}
+                  </p>
+
+                  <p className="text-xs font-bold text-slate-500 mb-4">
+                    Requirement Type: {scenario.requirement}
+                  </p>
+
+                  <div className="space-y-3">
+                    {scenario.items.map((item) => (
+                      <div key={item.name} className="border-b border-slate-100 pb-2">
+                        <p className="text-xs text-slate-600">{item.name}</p>
+                        <p className="font-bold">{formatCurrency(item.amount)}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                    <p className="text-sm font-bold text-emerald-800">
+                      Suggested Additional Investment: {formatCurrency(scenario.totalInvestment)}
+                    </p>
+                    <p className="text-sm text-emerald-700">
+                      Approx Tax Saving: {formatCurrency(scenario.taxSaved)}
+                    </p>
+                    <p className="text-sm text-emerald-700">
+                      Estimated 10-Year Value: {formatCurrency(scenario.estimated10YearValue)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs text-slate-500 mt-5 leading-relaxed">
+              Disclaimer: The scenario amounts are not mandatory. Users can change investment amounts according to their financial goals, liquidity needs and risk appetite. Estimated returns are illustrative only and may vary depending on market performance, interest rates, product choice and investment tenure.
+            </p>
+          </div>
+
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Tax Disclaimer: This is a simplified income tax calculator for resident salaried individuals for FY 2025-26 / AY 2026-27. It uses new-regime slabs and standard deductions currently listed by the Income Tax Department, and old-regime slabs with common deductions. It does not include surcharge, marginal relief, HRA calculation, LTA, employer NPS, capital gains, business income, special-rate income, house property loss rules or advanced tax provisions. Please consult a qualified tax advisor before making tax or investment decisions. :contentReference[oaicite:0]{index=0}
           </p>
         </div>
       </div>
