@@ -30,15 +30,18 @@ export default function InvestmentCalculator() {
   const lumpsumFutureValue = lumpsum * Math.pow(1 + annualRate, investmentYears);
   const lumpsumReturns = lumpsumFutureValue - lumpsum;
 
-  const currentReturns = mode === 'sip' ? sipReturns : lumpsumReturns;
-  const currentFutureValue = mode === 'sip' ? sipFutureValue : lumpsumFutureValue;
+  const investedAmount = mode === 'sip' ? sipInvested : lumpsum;
+  const estimatedReturns = mode === 'sip' ? sipReturns : lumpsumReturns;
+  const totalValue = mode === 'sip' ? sipFutureValue : lumpsumFutureValue;
 
-  const stcgTax = currentReturns > 0 ? currentReturns * 0.20 : 0;
-  const taxableLtcg = currentReturns > 125000 ? currentReturns - 125000 : 0;
-  const ltcgTax = taxableLtcg * 0.125;
+  const isShortTerm = investmentYears <= 1;
 
-  const netAfterStcg = currentFutureValue - stcgTax;
-  const netAfterLtcg = currentFutureValue - ltcgTax;
+  const shortTermTax = estimatedReturns > 0 ? estimatedReturns * 0.20 : 0;
+  const taxableLongTermGain = estimatedReturns > 125000 ? estimatedReturns - 125000 : 0;
+  const longTermTax = taxableLongTermGain * 0.125;
+
+  const applicableTax = isShortTerm ? shortTermTax : longTermTax;
+  const netTakeHome = totalValue - applicableTax;
 
   const formatCurrency = (value: number) =>
     `₹${Math.round(value).toLocaleString('en-IN')}`;
@@ -124,49 +127,45 @@ export default function InvestmentCalculator() {
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
               <h3 className="text-xl font-bold mb-5">Estimated Results</h3>
 
-              {mode === 'sip' ? (
-                <div className="space-y-4">
-                  <p>Invested Amount: <strong>{formatCurrency(sipInvested)}</strong></p>
-                  <p>Estimated Returns: <strong>{formatCurrency(sipReturns)}</strong></p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    Total Value: {formatCurrency(sipFutureValue)}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p>Invested Amount: <strong>{formatCurrency(lumpsum)}</strong></p>
-                  <p>Estimated Returns: <strong>{formatCurrency(lumpsumReturns)}</strong></p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    Total Value: {formatCurrency(lumpsumFutureValue)}
-                  </p>
-                </div>
-              )}
+              <div className="space-y-4">
+                <p>Invested Amount: <strong>{formatCurrency(investedAmount)}</strong></p>
+                <p>Estimated Returns: <strong>{formatCurrency(estimatedReturns)}</strong></p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  Total Value: {formatCurrency(totalValue)}
+                </p>
+              </div>
 
               <div className="mt-6 pt-5 border-t border-slate-200 space-y-3">
                 <h4 className="font-bold text-slate-900">Tax Estimate</h4>
 
                 <p className="text-sm text-slate-700">
-                  Short Term Tax <span className="text-xs text-slate-500">(up to 12 months)</span>: 
-                  <strong> {formatCurrency(stcgTax)}</strong>
+                  Tax Category Applied:{' '}
+                  <strong>
+                    {isShortTerm
+                      ? 'Short Term Capital Gain'
+                      : 'Long Term Capital Gain'}
+                  </strong>
+                </p>
+
+                <p className="text-xs text-slate-500">
+                  {isShortTerm
+                    ? 'Short term means investment period is up to 12 months.'
+                    : 'Long term means investment period is more than 12 months.'}
                 </p>
 
                 <p className="text-sm text-slate-700">
-                  Net Take Home after Short Term Tax: 
-                  <strong> {formatCurrency(netAfterStcg)}</strong>
+                  Tax Amount:{' '}
+                  <strong>{formatCurrency(applicableTax)}</strong>
                 </p>
 
-                <p className="text-sm text-slate-700">
-                  Long Term Tax <span className="text-xs text-slate-500">(more than 12 months)</span>: 
-                  <strong> {formatCurrency(ltcgTax)}</strong>
-                </p>
-
-                <p className="text-sm text-slate-700">
-                  Net Take Home after Long Term Tax: 
-                  <strong> {formatCurrency(netAfterLtcg)}</strong>
+                <p className="text-lg font-bold text-emerald-700">
+                  Net Take Home Amount: {formatCurrency(netTakeHome)}
                 </p>
 
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Tax estimate assumes equity mutual fund taxation: STCG at 20% and LTCG at 12.5% on gains above ₹1.25 lakh. Cess, surcharge, slab impact, and fund category differences are not included.
+                  Tax estimate assumes equity mutual fund taxation: STCG at 20%
+                  and LTCG at 12.5% on gains above ₹1.25 lakh. Cess, surcharge,
+                  slab impact, and fund category differences are not included.
                 </p>
               </div>
             </div>
