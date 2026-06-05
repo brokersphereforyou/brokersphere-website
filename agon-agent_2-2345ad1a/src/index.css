@@ -2,23 +2,22 @@
 
 /* BrokerSphere fintech theme */
 :root {
-  --bs-bg: #f3f6fb;
-  --bs-card: #ffffff;
-  --bs-card-soft: #f8fafc;
-  --bs-text: #0f172a;
-  --bs-text-soft: #334155;
-  --bs-muted: #64748b;
-  --bs-border: #dbe3ef;
-  --bs-green: #00a676;
-  --bs-green-dark: #008f66;
-  --bs-dark-card: #101828;
-  --bs-dark-card-2: #162033;
+  --bs-page-bg: #eef4ff;
+  --bs-card-bg: #ffffff;
+  --bs-soft-bg: #f7faff;
+  --bs-dark: #0f172a;
+  --bs-text: #102033;
+  --bs-muted: #475569;
+  --bs-border: #d5e0ef;
+  --bs-green: #009d75;
+  --bs-green-dark: #007f60;
+  --bs-option-bg: #e8f3ff;
+  --bs-option-text: #0f172a;
 }
 
-/* Base */
 html {
   color-scheme: light !important;
-  background: var(--bs-bg) !important;
+  background: var(--bs-page-bg) !important;
 }
 
 html,
@@ -30,7 +29,7 @@ body,
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  background: var(--bs-bg) !important;
+  background: var(--bs-page-bg) !important;
   color: var(--bs-text) !important;
 }
 
@@ -42,12 +41,12 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Stop mobile browser dark-mode color issues */
+/* Prevent mobile/browser dark mode bugs */
 @media (prefers-color-scheme: dark) {
   html,
   body,
   #root {
-    background: var(--bs-bg) !important;
+    background: var(--bs-page-bg) !important;
     color: var(--bs-text) !important;
   }
 
@@ -56,23 +55,23 @@ body {
   }
 }
 
-/* Page backgrounds */
+/* Page background */
 section,
 main {
-  background: var(--bs-bg) !important;
+  background: var(--bs-page-bg) !important;
 }
 
-/* Card backgrounds */
+/* Cards */
 .bg-white {
-  background-color: var(--bs-card) !important;
+  background-color: var(--bs-card-bg) !important;
 }
 
 .bg-slate-50,
 .bg-slate-100 {
-  background-color: var(--bs-card-soft) !important;
+  background-color: var(--bs-soft-bg) !important;
 }
 
-/* Dark cards: keep them dark but readable */
+/* Dark cards should stay dark */
 .bg-slate-950,
 .bg-slate-900,
 .bg-slate-800,
@@ -80,38 +79,25 @@ main {
 .bg-slate-950\/30,
 .bg-slate-900\/50,
 .bg-slate-800\/60 {
-  background-color: var(--bs-dark-card) !important;
+  background-color: #101828 !important;
   color: #f8fafc !important;
 }
 
-.bg-slate-950 *,
-.bg-slate-900 *,
-.bg-slate-800 *,
-.bg-slate-950\/40 *,
-.bg-slate-950\/30 *,
-.bg-slate-900\/50 *,
-.bg-slate-800\/60 * {
-  color: #f8fafc !important;
-}
-
-/* Text colors */
+/* Text */
 .text-slate-900,
 .text-slate-800,
 .text-slate-700 {
   color: var(--bs-text) !important;
 }
 
-.text-slate-600 {
-  color: var(--bs-text-soft) !important;
-}
-
+.text-slate-600,
 .text-slate-500,
 .text-slate-400,
 .text-slate-300 {
   color: var(--bs-muted) !important;
 }
 
-/* Green theme */
+/* Primary green */
 .bg-emerald-600,
 .bg-emerald-700 {
   background-color: var(--bs-green) !important;
@@ -135,7 +121,7 @@ main {
 }
 
 .bg-emerald-50 {
-  background-color: #e8fff7 !important;
+  background-color: #e6fff6 !important;
 }
 
 .border-emerald-100,
@@ -150,12 +136,7 @@ main {
   border-color: var(--bs-border) !important;
 }
 
-.border-slate-700,
-.border-slate-800 {
-  border-color: #263247 !important;
-}
-
-/* Inputs and dropdowns */
+/* Inputs */
 input,
 select,
 textarea {
@@ -163,16 +144,7 @@ textarea {
   color: var(--bs-text) !important;
   border-color: #cbd5e1 !important;
   max-width: 100%;
-}
-
-option {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-}
-
-select option {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
+  -webkit-text-fill-color: var(--bs-text) !important;
 }
 
 input::placeholder,
@@ -180,12 +152,24 @@ textarea::placeholder {
   color: #64748b !important;
 }
 
-/* Fix invisible Add Broker dropdown */
-select,
-select:focus,
-select:hover {
+/* VERY IMPORTANT: Fix invisible Add Broker dropdown */
+select {
+  background-color: var(--bs-green) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+select option,
+option {
+  background-color: var(--bs-option-bg) !important;
+  color: var(--bs-option-text) !important;
+  -webkit-text-fill-color: var(--bs-option-text) !important;
+}
+
+/* Selected / hovered option visibility */
+select option:checked {
+  background-color: #c7ddff !important;
   color: #0f172a !important;
-  background-color: #ffffff !important;
   -webkit-text-fill-color: #0f172a !important;
 }
 
@@ -221,7 +205,7 @@ a {
 }
 
 .freeze-first-col th:first-child {
-  background-color: #f1f5f9 !important;
+  background-color: #f0f5fb !important;
 }
 
 .freeze-first-col th:first-child::after,
@@ -237,7 +221,7 @@ a {
 }
 
 .freeze-first-col tr:hover td:first-child {
-  background-color: #eef2f7 !important;
+  background-color: #eaf1fa !important;
 }
 
 .freeze-first-col td[colspan]:first-child {
@@ -251,19 +235,19 @@ a {
   display: none !important;
 }
 
-/* Mobile fixes */
+/* Mobile improvements */
 @media (max-width: 768px) {
   html,
   body,
   #root {
-    background: var(--bs-bg) !important;
+    background: var(--bs-page-bg) !important;
     width: 100%;
     max-width: 100%;
     overflow-x: hidden !important;
   }
 
   section {
-    background: var(--bs-bg) !important;
+    background: var(--bs-page-bg) !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
     padding-top: 28px !important;
@@ -331,17 +315,27 @@ a {
   }
 
   input,
-  select,
   textarea {
     font-size: 16px !important;
     width: 100% !important;
     background-color: #ffffff !important;
-    color: #0f172a !important;
+    color: var(--bs-text) !important;
+    -webkit-text-fill-color: var(--bs-text) !important;
   }
 
+  select {
+    font-size: 16px !important;
+    width: 100% !important;
+    background-color: var(--bs-green) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  select option,
   option {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
+    background-color: var(--bs-option-bg) !important;
+    color: var(--bs-option-text) !important;
+    -webkit-text-fill-color: var(--bs-option-text) !important;
   }
 
   button {
@@ -363,16 +357,5 @@ a {
 
   .grid > * {
     min-width: 0;
-  }
-
-  .bg-slate-950,
-  .bg-slate-900,
-  .bg-slate-800,
-  .bg-slate-950\/40,
-  .bg-slate-950\/30,
-  .bg-slate-900\/50,
-  .bg-slate-800\/60 {
-    background-color: var(--bs-dark-card) !important;
-    color: #f8fafc !important;
   }
 }
