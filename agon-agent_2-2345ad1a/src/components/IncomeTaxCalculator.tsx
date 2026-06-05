@@ -38,22 +38,22 @@ type DeductionItem = {
 };
 
 const deductionOptions: DeductionOption[] = [
-  { id: 'epf', section: '80C', name: 'EPF', maxLimit: 150000, group: '80C', returnRate: 0.08 },
-  { id: 'ppf', section: '80C', name: 'PPF', maxLimit: 150000, group: '80C', returnRate: 0.07 },
-  { id: 'elss', section: '80C', name: 'ELSS Mutual Fund', maxLimit: 150000, group: '80C', returnRate: 0.12 },
+  { id: 'epf', section: '80C', name: 'EPF Employee Contribution', maxLimit: 150000, group: '80C', returnRate: 0.08 },
+  { id: 'ppf', section: '80C', name: 'PPF Investment', maxLimit: 150000, group: '80C', returnRate: 0.07 },
+  { id: 'elss', section: '80C', name: 'ELSS Mutual Fund Investment', maxLimit: 150000, group: '80C', returnRate: 0.12 },
   { id: 'life-insurance', section: '80C', name: 'Life Insurance Premium', maxLimit: 150000, group: '80C', returnRate: 0.04 },
-  { id: 'tax-saver-fd', section: '80C', name: 'Tax Saver FD', maxLimit: 150000, group: '80C', returnRate: 0.07 },
+  { id: 'tax-saver-fd', section: '80C', name: '5-Year Tax Saver FD', maxLimit: 150000, group: '80C', returnRate: 0.07 },
   { id: 'tuition-fee', section: '80C', name: 'Children Tuition Fee', maxLimit: 150000, group: '80C', returnRate: 0 },
-  { id: 'home-principal', section: '80C', name: 'Home Loan Principal', maxLimit: 150000, group: '80C', returnRate: 0 },
-  { id: 'nsc', section: '80C', name: 'NSC', maxLimit: 150000, group: '80C', returnRate: 0.07 },
+  { id: 'home-principal', section: '80C', name: 'Home Loan Principal Repayment', maxLimit: 150000, group: '80C', returnRate: 0 },
+  { id: 'nsc', section: '80C', name: 'NSC Investment', maxLimit: 150000, group: '80C', returnRate: 0.07 },
   { id: 'ssy', section: '80C', name: 'Sukanya Samriddhi Yojana', maxLimit: 150000, group: '80C', returnRate: 0.08 },
-  { id: 'health-self', section: '80D', name: 'Health Insurance - Self & Family', maxLimit: 25000, group: '80D_SELF', returnRate: 0 },
-  { id: 'health-parents', section: '80D', name: 'Health Insurance - Parents', maxLimit: 50000, group: '80D_PARENTS', returnRate: 0 },
-  { id: 'nps', section: '80CCD(1B)', name: 'NPS Contribution', maxLimit: 50000, group: 'NPS', returnRate: 0.1 },
-  { id: 'home-interest', section: '24(b)', name: 'Home Loan Interest', maxLimit: 200000, group: 'HOME_INTEREST', returnRate: 0 },
-  { id: 'education-loan', section: '80E', name: 'Education Loan Interest', maxLimit: 1000000, group: 'EDU_LOAN', returnRate: 0 },
-  { id: 'lta', section: 'LTA', name: 'Leave Travel Allowance', maxLimit: 100000, group: 'LTA', returnRate: 0 },
-  { id: 'donation', section: '80G', name: 'Donation', maxLimit: 100000, group: 'DONATION', returnRate: 0 }
+  { id: 'health-self', section: '80D', name: 'Health Insurance Premium - Self & Family', maxLimit: 25000, group: '80D_SELF', returnRate: 0 },
+  { id: 'health-parents', section: '80D', name: 'Health Insurance Premium - Parents', maxLimit: 50000, group: '80D_PARENTS', returnRate: 0 },
+  { id: 'nps', section: '80CCD(1B)', name: 'NPS Additional Contribution', maxLimit: 50000, group: 'NPS', returnRate: 0.1 },
+  { id: 'home-interest', section: '24(b)', name: 'Home Loan Interest Paid', maxLimit: 200000, group: 'HOME_INTEREST', returnRate: 0 },
+  { id: 'education-loan', section: '80E', name: 'Education Loan Interest Paid', maxLimit: 1000000, group: 'EDU_LOAN', returnRate: 0 },
+  { id: 'lta', section: 'LTA', name: 'Leave Travel Allowance Claim', maxLimit: 100000, group: 'LTA', returnRate: 0 },
+  { id: 'donation', section: '80G', name: 'Eligible Donations', maxLimit: 100000, group: 'DONATION', returnRate: 0 }
 ];
 
 const groupLimits: Record<string, number> = {
@@ -68,7 +68,7 @@ const groupLimits: Record<string, number> = {
 };
 
 export default function IncomeTaxCalculator() {
-  const [annualIncome, setAnnualIncome] = useState('1000000');
+  const [annualIncome, setAnnualIncome] = useState('1200000');
   const [basicSalary, setBasicSalary] = useState('500000');
   const [hraReceived, setHraReceived] = useState('200000');
   const [isMetro, setIsMetro] = useState(false);
@@ -422,18 +422,27 @@ export default function IncomeTaxCalculator() {
 
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6">
-              <label className="block mb-2 font-medium">Annual Gross Income Including Bonus</label>
-              <input type="number" value={annualIncome} onChange={(e) => setAnnualIncome(e.target.value)} className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+              <label className="block mb-2 font-medium">Total Annual Salary / Income Including Bonus</label>
+              <input type="number" value={annualIncome} onChange={(e) => setAnnualIncome(e.target.value)} className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+              <p className="text-xs text-slate-500 mb-4">
+                Enter your total yearly income. This already includes basic salary, HRA, bonus, allowances and other salary components.
+              </p>
 
-              <label className="block mb-2 font-medium">Annual Basic Salary</label>
-              <input type="number" value={basicSalary} onChange={(e) => setBasicSalary(e.target.value)} className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+              <label className="block mb-2 font-medium">Annual Basic Salary Component</label>
+              <input type="number" value={basicSalary} onChange={(e) => setBasicSalary(e.target.value)} className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+              <p className="text-xs text-slate-500 mb-4">
+                Enter only the basic salary portion from your salary structure. This is used only for HRA exemption calculation.
+              </p>
 
-              <label className="block mb-2 font-medium">Annual HRA Received</label>
-              <input type="number" value={hraReceived} onChange={(e) => setHraReceived(e.target.value)} className="w-full mb-4 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+              <label className="block mb-2 font-medium">Annual HRA Received Component</label>
+              <input type="number" value={hraReceived} onChange={(e) => setHraReceived(e.target.value)} className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+              <p className="text-xs text-slate-500 mb-4">
+                Enter only the HRA portion received from employer. This is not added again to income; it is used only to calculate HRA exemption under old regime.
+              </p>
 
               <label className="flex items-center gap-2 text-sm font-medium mb-4">
                 <input type="checkbox" checked={isMetro} onChange={(e) => setIsMetro(e.target.checked)} />
-                Metro City for HRA calculation
+                Metro city for HRA calculation
               </label>
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800">
@@ -559,7 +568,7 @@ export default function IncomeTaxCalculator() {
                   <th className="p-4">Home Loan Interest</th>
                   <th className="p-4">Total Investment</th>
                   <th className="p-4">Tax Saving</th>
-                  <th className="p-4">10-Year Value</th>
+                  <th className="p-4">10-Year Estimated Value (Approx.)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -583,7 +592,7 @@ export default function IncomeTaxCalculator() {
           </div>
 
           <p className="text-xs text-slate-500 mt-5">
-            Scenario amounts are capped based on your income, expenses, estimated tax, and remaining eligible old-regime deduction limits.
+            Scenario amounts are capped based on your income, expenses, estimated tax, and remaining eligible old-regime deduction limits. Estimated value is approximate and not guaranteed.
           </p>
         </div>
 
