@@ -1077,7 +1077,7 @@ export const brokersData: Broker[] = [
     verdict: 'Choice Broking is an excellent, fast-growing full-service broker in India. By combining the best aspects of discount brokers (₹0 delivery brokerage and flat ₹20 F&O) with full-service benefits (free daily tips, expert stock recommendations, and physical branches), it is a superb choice for retail investors.',
     yearFounded: 1993,
     headquarters: 'Mumbai, Maharashtra',
-       accountOpeningUrl: 'https://choiceindia.com/'
+    accountOpeningUrl: 'https://choiceindia.com/'
   },
   {
     id: 'capmint',
