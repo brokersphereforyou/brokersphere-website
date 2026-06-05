@@ -30,6 +30,16 @@ export default function InvestmentCalculator() {
   const lumpsumFutureValue = lumpsum * Math.pow(1 + annualRate, investmentYears);
   const lumpsumReturns = lumpsumFutureValue - lumpsum;
 
+  const currentReturns = mode === 'sip' ? sipReturns : lumpsumReturns;
+  const currentFutureValue = mode === 'sip' ? sipFutureValue : lumpsumFutureValue;
+
+  const stcgTax = currentReturns > 0 ? currentReturns * 0.20 : 0;
+  const taxableLtcg = currentReturns > 125000 ? currentReturns - 125000 : 0;
+  const ltcgTax = taxableLtcg * 0.125;
+
+  const netAfterStcg = currentFutureValue - stcgTax;
+  const netAfterLtcg = currentFutureValue - ltcgTax;
+
   const formatCurrency = (value: number) =>
     `₹${Math.round(value).toLocaleString('en-IN')}`;
 
@@ -131,6 +141,34 @@ export default function InvestmentCalculator() {
                   </p>
                 </div>
               )}
+
+              <div className="mt-6 pt-5 border-t border-slate-200 space-y-3">
+                <h4 className="font-bold text-slate-900">Tax Estimate</h4>
+
+                <p className="text-sm text-slate-700">
+                  Short Term Tax <span className="text-xs text-slate-500">(up to 12 months)</span>: 
+                  <strong> {formatCurrency(stcgTax)}</strong>
+                </p>
+
+                <p className="text-sm text-slate-700">
+                  Net Take Home after Short Term Tax: 
+                  <strong> {formatCurrency(netAfterStcg)}</strong>
+                </p>
+
+                <p className="text-sm text-slate-700">
+                  Long Term Tax <span className="text-xs text-slate-500">(more than 12 months)</span>: 
+                  <strong> {formatCurrency(ltcgTax)}</strong>
+                </p>
+
+                <p className="text-sm text-slate-700">
+                  Net Take Home after Long Term Tax: 
+                  <strong> {formatCurrency(netAfterLtcg)}</strong>
+                </p>
+
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Tax estimate assumes equity mutual fund taxation: STCG at 20% and LTCG at 12.5% on gains above ₹1.25 lakh. Cess, surcharge, slab impact, and fund category differences are not included.
+                </p>
+              </div>
             </div>
           </div>
 
