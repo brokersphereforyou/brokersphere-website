@@ -423,32 +423,58 @@ export default function IncomeTaxCalculator() {
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6">
               <label className="block mb-2 font-medium">Total Annual Salary / Income Including Bonus</label>
-              <input type="number" value={annualIncome} onChange={(e) => setAnnualIncome(e.target.value)} className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
-              <p className="text-xs text-slate-500 mb-4">
+              <input
+                type="number"
+                value={annualIncome}
+                onChange={(e) => setAnnualIncome(e.target.value)}
+                className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+              />
+              <p className="text-xs text-slate-500 mb-5">
                 Enter your total yearly income. This already includes basic salary, HRA, bonus, allowances and other salary components.
               </p>
 
-              <label className="block mb-2 font-medium">Annual Basic Salary Component</label>
-              <input type="number" value={basicSalary} onChange={(e) => setBasicSalary(e.target.value)} className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
-              <p className="text-xs text-slate-500 mb-4">
-                Enter only the basic salary portion from your salary structure. This is used only for HRA exemption calculation.
-              </p>
+              <div className="mt-6 pt-5 border-t border-slate-200">
+                <h4 className="text-lg font-bold mb-2">HRA Details for Old Regime</h4>
+                <p className="text-xs text-slate-500 mb-4">
+                  These details are used only to calculate HRA exemption under the old tax regime. They are not added again to your annual income.
+                </p>
 
-              <label className="block mb-2 font-medium">Annual HRA Received Component</label>
-              <input type="number" value={hraReceived} onChange={(e) => setHraReceived(e.target.value)} className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
-              <p className="text-xs text-slate-500 mb-4">
-                Enter only the HRA portion received from employer. This is not added again to income; it is used only to calculate HRA exemption under old regime.
-              </p>
+                <label className="block mb-2 font-medium">Annual Basic Salary Component</label>
+                <input
+                  type="number"
+                  value={basicSalary}
+                  onChange={(e) => setBasicSalary(e.target.value)}
+                  className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                />
+                <p className="text-xs text-slate-500 mb-4">
+                  Enter only the basic salary portion from your salary structure.
+                </p>
 
-              <label className="flex items-center gap-2 text-sm font-medium mb-4">
-                <input type="checkbox" checked={isMetro} onChange={(e) => setIsMetro(e.target.checked)} />
-                Metro city for HRA calculation
-              </label>
+                <label className="block mb-2 font-medium">Annual HRA Received Component</label>
+                <input
+                  type="number"
+                  value={hraReceived}
+                  onChange={(e) => setHraReceived(e.target.value)}
+                  className="w-full mb-1 p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                />
+                <p className="text-xs text-slate-500 mb-4">
+                  Enter only the HRA portion received from employer.
+                </p>
 
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800">
-                Standard deduction: New Regime ₹75,000, Old Regime ₹50,000.
-                <br />
-                HRA exemption considered in old regime: <strong>{formatCurrency(hraExemption)}</strong>
+                <label className="flex items-center gap-2 text-sm font-medium mb-4">
+                  <input
+                    type="checkbox"
+                    checked={isMetro}
+                    onChange={(e) => setIsMetro(e.target.checked)}
+                  />
+                  Metro city for HRA calculation
+                </label>
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800">
+                  Standard deduction: New Regime ₹75,000, Old Regime ₹50,000.
+                  <br />
+                  HRA exemption considered in old regime: <strong>{formatCurrency(hraExemption)}</strong>
+                </div>
               </div>
             </div>
 
@@ -459,7 +485,10 @@ export default function IncomeTaxCalculator() {
               <p>Taxable Income - Old Regime: <strong>{formatCurrency(taxableOld)}</strong></p>
 
               <div className="border-t border-slate-200 pt-4 mt-4">
-                <button onClick={() => setShowNewBreakup(!showNewBreakup)} className="w-full text-left font-bold text-emerald-700 hover:underline">
+                <button
+                  onClick={() => setShowNewBreakup(!showNewBreakup)}
+                  className="w-full text-left font-bold text-emerald-700 hover:underline"
+                >
                   New Regime Tax before Cess: {formatCurrency(newResult.taxAfterRebate)} {showNewBreakup ? '▲' : '▼'}
                 </button>
                 {showNewBreakup && <TaxBreakupTable result={newResult} />}
@@ -469,7 +498,10 @@ export default function IncomeTaxCalculator() {
               </div>
 
               <div className="border-t border-slate-200 pt-4 mt-4">
-                <button onClick={() => setShowOldBreakup(!showOldBreakup)} className="w-full text-left font-bold text-emerald-700 hover:underline">
+                <button
+                  onClick={() => setShowOldBreakup(!showOldBreakup)}
+                  className="w-full text-left font-bold text-emerald-700 hover:underline"
+                >
                   Old Regime Tax before Cess: {formatCurrency(oldResult.taxAfterRebate)} {showOldBreakup ? '▲' : '▼'}
                 </button>
                 {showOldBreakup && <TaxBreakupTable result={oldResult} />}
@@ -495,7 +527,12 @@ export default function IncomeTaxCalculator() {
               {expenses.map((item) => (
                 <div key={item.id} className="mb-4">
                   <label className="block mb-2 font-medium">{item.name}</label>
-                  <input type="number" value={item.amount} onChange={(e) => updateExpense(item.id, e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+                  <input
+                    type="number"
+                    value={item.amount}
+                    onChange={(e) => updateExpense(item.id, e.target.value)}
+                    className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                  />
                 </div>
               ))}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
@@ -519,7 +556,11 @@ export default function IncomeTaxCalculator() {
                 return (
                   <div key={item.id} className="mb-4">
                     <div className="grid md:grid-cols-[minmax(0,1fr)_150px_44px] gap-3 items-center">
-                      <select value={item.optionId} onChange={(e) => updateDeductionOption(item.id, e.target.value)} className="p-3 rounded-lg border border-slate-300 bg-white text-slate-900">
+                      <select
+                        value={item.optionId}
+                        onChange={(e) => updateDeductionOption(item.id, e.target.value)}
+                        className="p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                      >
                         {deductionOptions.filter((option) => !usedIds.includes(option.id) || option.id === item.optionId).map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.section} - {option.name}
@@ -527,9 +568,17 @@ export default function IncomeTaxCalculator() {
                         ))}
                       </select>
 
-                      <input type="number" value={item.amount} onChange={(e) => updateDeductionAmount(item.id, e.target.value)} className="p-3 rounded-lg border border-slate-300 bg-white text-slate-900" />
+                      <input
+                        type="number"
+                        value={item.amount}
+                        onChange={(e) => updateDeductionAmount(item.id, e.target.value)}
+                        className="p-3 rounded-lg border border-slate-300 bg-white text-slate-900"
+                      />
 
-                      <button onClick={() => removeDeduction(item.id)} className="h-11 w-11 rounded-lg border border-red-200 text-red-600 font-bold flex items-center justify-center">
+                      <button
+                        onClick={() => removeDeduction(item.id)}
+                        className="h-11 w-11 rounded-lg border border-red-200 text-red-600 font-bold flex items-center justify-center"
+                      >
                         ×
                       </button>
                     </div>
