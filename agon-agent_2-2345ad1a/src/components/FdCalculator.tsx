@@ -6,6 +6,7 @@ export default function FdCalculator() {
   const [fdYears, setFdYears] = useState('5');
   const [taxSlab, setTaxSlab] = useState('10');
   const [isSeniorCitizen, setIsSeniorCitizen] = useState(false);
+  const [hasPan, setHasPan] = useState(true);
 
   const fdPrincipal = Number(fdAmount) || 0;
   const fdAnnualRate = (Number(fdRate) || 0) / 100;
@@ -18,15 +19,18 @@ export default function FdCalculator() {
   const fdInterest = fdMaturityAmount - fdPrincipal;
 
   const estimatedTax = fdInterest * taxRate;
-  const netTakeHome = fdMaturityAmount - estimatedTax;
 
   const annualInterest = fdPeriod > 0 ? fdInterest / fdPeriod : 0;
   const tdsThreshold = isSeniorCitizen ? 100000 : 50000;
-  const estimatedTds =
-    annualInterest > tdsThreshold ? annualInterest * 0.10 * fdPeriod : 0;
+  const tdsRate = hasPan ? 0.10 : 0.20;
 
-  const amountAfterTds = fdMaturityAmount - estimatedTds;
-  const balanceTaxPayable = Math.max(estimatedTax - estimatedTds, 0);
+  const estimatedTds =
+    annualInterest > tdsThreshold ? fdInterest * tdsRate : 0;
+
+  const amountReceivedAfterTds = fdMaturityAmount - estimatedTds;
+  const additionalTaxPayable = Math.max(estimatedTax - estimatedTds, 0);
+  const refundExpected = Math.max(estimatedTds - estimatedTax, 0);
+  const netTakeHomeAfterFinalTax = fdMaturityAmount - estimatedTax;
 
   const formatCurrency = (value: number) =>
     `₹${Math.round(value).toLocaleString('en-IN')}`;
@@ -39,7 +43,7 @@ export default function FdCalculator() {
             FD Calculator
           </h2>
           <p className="text-slate-600">
-            Calculate your fixed deposit maturity amount, tax estimate, TDS and net take-home value.
+            Calculate fixed deposit maturity amount, tax estimate, TDS and final net take-home value.
           </p>
         </div>
 
@@ -83,13 +87,22 @@ export default function FdCalculator() {
                 <option value="30">30%</option>
               </select>
 
-              <label className="flex items-center gap-2 text-sm font-medium">
+              <label className="flex items-center gap-2 text-sm font-medium mb-3">
                 <input
                   type="checkbox"
                   checked={isSeniorCitizen}
                   onChange={(e) => setIsSeniorCitizen(e.target.checked)}
                 />
                 Senior Citizen
+              </label>
+
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={hasPan}
+                  onChange={(e) => setHasPan(e.target.checked)}
+                />
+                PAN Available
               </label>
             </div>
 
@@ -108,38 +121,46 @@ export default function FdCalculator() {
                 <h4 className="font-bold text-slate-900">Tax & Net Take Home Estimate</h4>
 
                 <p className="text-sm text-slate-700">
-                  Tax on FD Interest as per Selected Slab:{' '}
+                  Actual Tax Liability as per Selected Slab:{' '}
                   <strong>{formatCurrency(estimatedTax)}</strong>
                 </p>
 
                 <p className="text-sm text-slate-700">
-                  Estimated TDS Deducted by Bank:{' '}
+                  Estimated Bank TDS:{' '}
                   <strong>{formatCurrency(estimatedTds)}</strong>
                 </p>
 
                 <p className="text-sm text-slate-700">
                   Amount Received after TDS:{' '}
-                  <strong>{formatCurrency(amountAfterTds)}</strong>
+                  <strong>{formatCurrency(amountReceivedAfterTds)}</strong>
                 </p>
 
-                <p className="text-sm text-slate-700">
-                  Balance Tax Payable while Filing ITR:{' '}
-                  <strong>{formatCurrency(balanceTaxPayable)}</strong>
-                </p>
+                {additionalTaxPayable > 0 ? (
+                  <p className="text-sm text-red-600">
+                    Additional Tax Payable while Filing ITR:{' '}
+                    <strong>{formatCurrency(additionalTaxPayable)}</strong>
+                  </p>
+                ) : (
+                  <p className="text-sm text-emerald-700">
+                    Refund Expected while Filing ITR:{' '}
+                    <strong>{formatCurrency(refundExpected)}</strong>
+                  </p>
+                )}
 
                 <p className="text-lg font-bold text-emerald-700">
-                  Net Take Home Amount after Tax: {formatCurrency(netTakeHome)}
+                  Net Take Home Amount after Final Tax:{' '}
+                  {formatCurrency(netTakeHomeAfterFinalTax)}
                 </p>
 
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  TDS rule: Bank FD interest is generally subject to 10% TDS if annual interest exceeds ₹50,000 for non-senior citizens and ₹1,00,000 for senior citizens. If PAN is not provided, TDS may be 20%. FD interest is taxable as “Income from Other Sources” as per your income tax slab. TDS is only advance tax; final tax depends on your total income and ITR filing.
+                  TDS rule: Banks generally deduct TDS if annual FD interest exceeds ₹50,000 for non-senior citizens or ₹1,00,000 for senior citizens. Once the threshold is crossed, TDS is generally calculated on the interest credited, not only on the excess amount. TDS is 10% if PAN is available and may be 20% if PAN is not available. TDS is not final tax; final liability depends on your income tax slab and ITR filing. FD interest is taxable under “Income from Other Sources”.
                 </p>
               </div>
             </div>
           </div>
 
           <p className="text-xs text-slate-500 mt-6">
-            Note: FD result assumes quarterly compounding. Actual maturity value may vary by bank, compounding frequency, TDS, Form 15G/15H eligibility, and tax rules.
+            Note: FD result assumes quarterly compounding and uses average annual interest for TDS threshold estimation. Actual bank TDS may vary based on interest credit frequency, Form 15G/15H, PAN status, total income, and bank rules.
           </p>
         </div>
       </div>
