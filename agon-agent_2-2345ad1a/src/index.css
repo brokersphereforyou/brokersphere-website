@@ -1,18 +1,16 @@
 @import "tailwindcss";
 
-/* BrokerSphere fintech theme */
 :root {
   --bs-page-bg: #eef4ff;
   --bs-card-bg: #ffffff;
   --bs-soft-bg: #f7faff;
-  --bs-dark: #0f172a;
   --bs-text: #102033;
   --bs-muted: #475569;
   --bs-border: #d5e0ef;
   --bs-green: #009d75;
   --bs-green-dark: #007f60;
-  --bs-option-bg: #e8f3ff;
-  --bs-option-text: #0f172a;
+  --bs-select-bg: #e8f3ff;
+  --bs-select-text: #0f172a;
 }
 
 html {
@@ -41,7 +39,6 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Prevent mobile/browser dark mode bugs */
 @media (prefers-color-scheme: dark) {
   html,
   body,
@@ -55,13 +52,11 @@ body {
   }
 }
 
-/* Page background */
 section,
 main {
   background: var(--bs-page-bg) !important;
 }
 
-/* Cards */
 .bg-white {
   background-color: var(--bs-card-bg) !important;
 }
@@ -71,7 +66,6 @@ main {
   background-color: var(--bs-soft-bg) !important;
 }
 
-/* Dark cards should stay dark */
 .bg-slate-950,
 .bg-slate-900,
 .bg-slate-800,
@@ -83,7 +77,6 @@ main {
   color: #f8fafc !important;
 }
 
-/* Text */
 .text-slate-900,
 .text-slate-800,
 .text-slate-700 {
@@ -97,7 +90,6 @@ main {
   color: var(--bs-muted) !important;
 }
 
-/* Primary green */
 .bg-emerald-600,
 .bg-emerald-700 {
   background-color: var(--bs-green) !important;
@@ -124,12 +116,6 @@ main {
   background-color: #e6fff6 !important;
 }
 
-.border-emerald-100,
-.border-emerald-200 {
-  border-color: #b8f3df !important;
-}
-
-/* Borders */
 .border-slate-100,
 .border-slate-200,
 .border-slate-300 {
@@ -138,7 +124,6 @@ main {
 
 /* Inputs */
 input,
-select,
 textarea {
   background-color: #ffffff !important;
   color: var(--bs-text) !important;
@@ -147,39 +132,39 @@ textarea {
   -webkit-text-fill-color: var(--bs-text) !important;
 }
 
+/* IMPORTANT: Dropdown fix */
+select {
+  background-color: var(--bs-select-bg) !important;
+  color: var(--bs-select-text) !important;
+  border: 1px solid #94a3b8 !important;
+  max-width: 100%;
+  -webkit-text-fill-color: var(--bs-select-text) !important;
+}
+
+select option,
+option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+select option:checked,
+select option:hover {
+  background-color: #bfdbfe !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #64748b !important;
 }
 
-/* VERY IMPORTANT: Fix invisible Add Broker dropdown */
-select {
-  background-color: var(--bs-green) !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
-select option,
-option {
-  background-color: var(--bs-option-bg) !important;
-  color: var(--bs-option-text) !important;
-  -webkit-text-fill-color: var(--bs-option-text) !important;
-}
-
-/* Selected / hovered option visibility */
-select option:checked {
-  background-color: #c7ddff !important;
-  color: #0f172a !important;
-  -webkit-text-fill-color: #0f172a !important;
-}
-
-/* Buttons and links */
 button,
 a {
   -webkit-text-fill-color: initial !important;
 }
 
-/* Table scroll */
 .overflow-x-auto {
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -194,7 +179,6 @@ a {
   scrollbar-width: none;
 }
 
-/* Frozen first column */
 .freeze-first-col th:first-child,
 .freeze-first-col td:first-child {
   position: sticky !important;
@@ -235,7 +219,6 @@ a {
   display: none !important;
 }
 
-/* Mobile improvements */
 @media (max-width: 768px) {
   html,
   body,
@@ -315,27 +298,10 @@ a {
   }
 
   input,
-  textarea {
-    font-size: 16px !important;
-    width: 100% !important;
-    background-color: #ffffff !important;
-    color: var(--bs-text) !important;
-    -webkit-text-fill-color: var(--bs-text) !important;
-  }
-
+  textarea,
   select {
     font-size: 16px !important;
     width: 100% !important;
-    background-color: var(--bs-green) !important;
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
-  }
-
-  select option,
-  option {
-    background-color: var(--bs-option-bg) !important;
-    color: var(--bs-option-text) !important;
-    -webkit-text-fill-color: var(--bs-option-text) !important;
   }
 
   button {
