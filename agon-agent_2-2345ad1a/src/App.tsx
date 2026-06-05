@@ -10,6 +10,7 @@ import { Glossary } from './components/Glossary';
 import { BrokerDetail } from './components/BrokerDetail';
 import { DirectoryTable } from './components/DirectoryTable';
 import { BlogHub } from './components/BlogHub';
+import InvestmentCalculator from './components/InvestmentCalculator';
 import { 
   Search, 
   Sparkles, 
@@ -30,9 +31,9 @@ import {
 
 export default function App() {
   // Navigation states
-  const [activeTab, setActiveTab] = useState<'brokers' | 'compare' | 'finder' | 'calculator' | 'glossary' | 'blogs'>('brokers');
-  const [selectedBrokerId, setSelectedBrokerId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table'); // Default to table for easy comparison format!
+const [activeTab, setActiveTab] = useState<'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'glossary' | 'blogs'>('brokers');
+const [selectedBrokerId, setSelectedBrokerId] = useState<string | null>(null);
+const [viewMode, setViewMode] = useState<'table' | 'cards'>('table'); // Default to table for easy comparison format!
 
   // Comparison list states (up to 3 brokers)
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>([]);
@@ -737,7 +738,14 @@ export default function App() {
                 <FeeCalculator />
               </div>
             )}
-
+            
+            {/* TAB 4B: SIP & LUMPSUM CALCULATOR */}
+            {activeTab === 'investment' && (
+             <div className="space-y-6">
+               <InvestmentCalculator />
+              </div>
+              )} 
+            
             {/* TAB 5: TRADING GLOSSARY */}
             {activeTab === 'glossary' && (
               <div className="space-y-6">
