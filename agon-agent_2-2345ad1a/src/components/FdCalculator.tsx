@@ -27,10 +27,7 @@ export default function FdCalculator() {
   const estimatedTds =
     annualInterest > tdsThreshold ? fdInterest * tdsRate : 0;
 
-  const amountReceivedAfterTds = fdMaturityAmount - estimatedTds;
-  const additionalTaxPayable = Math.max(estimatedTax - estimatedTds, 0);
-  const refundExpected = Math.max(estimatedTds - estimatedTax, 0);
-  const netTakeHomeAfterFinalTax = fdMaturityAmount - estimatedTax;
+  const netTakeHomeAfterTaxAndTds = fdMaturityAmount - estimatedTax;
 
   const formatCurrency = (value: number) =>
     `₹${Math.round(value).toLocaleString('en-IN')}`;
@@ -43,7 +40,7 @@ export default function FdCalculator() {
             FD Calculator
           </h2>
           <p className="text-slate-600">
-            Calculate fixed deposit maturity amount, tax estimate, TDS and final net take-home value.
+            Calculate fixed deposit maturity amount, tax estimate, TDS and net take-home value.
           </p>
         </div>
 
@@ -110,18 +107,28 @@ export default function FdCalculator() {
               <h3 className="text-xl font-bold mb-5">Estimated Results</h3>
 
               <div className="space-y-4">
-                <p>Invested Amount: <strong>{formatCurrency(fdPrincipal)}</strong></p>
-                <p>Gross Interest Earned: <strong>{formatCurrency(fdInterest)}</strong></p>
+                <p>
+                  Invested Amount:{' '}
+                  <strong>{formatCurrency(fdPrincipal)}</strong>
+                </p>
+
+                <p>
+                  Gross Interest Earned:{' '}
+                  <strong>{formatCurrency(fdInterest)}</strong>
+                </p>
+
                 <p className="text-2xl font-bold text-emerald-600">
                   Maturity Amount: {formatCurrency(fdMaturityAmount)}
                 </p>
               </div>
 
               <div className="mt-6 pt-5 border-t border-slate-200 space-y-3">
-                <h4 className="font-bold text-slate-900">Tax & Net Take Home Estimate</h4>
+                <h4 className="font-bold text-slate-900">
+                  Tax & Net Take Home Estimate
+                </h4>
 
                 <p className="text-sm text-slate-700">
-                  Actual Tax Liability as per Selected Slab:{' '}
+                  Tax on FD Interest as per Selected Slab:{' '}
                   <strong>{formatCurrency(estimatedTax)}</strong>
                 </p>
 
@@ -130,37 +137,37 @@ export default function FdCalculator() {
                   <strong>{formatCurrency(estimatedTds)}</strong>
                 </p>
 
-                <p className="text-sm text-slate-700">
-                  Amount Received after TDS:{' '}
-                  <strong>{formatCurrency(amountReceivedAfterTds)}</strong>
-                </p>
-
-                {additionalTaxPayable > 0 ? (
-                  <p className="text-sm text-red-600">
-                    Additional Tax Payable while Filing ITR:{' '}
-                    <strong>{formatCurrency(additionalTaxPayable)}</strong>
-                  </p>
-                ) : (
-                  <p className="text-sm text-emerald-700">
-                    Refund Expected while Filing ITR:{' '}
-                    <strong>{formatCurrency(refundExpected)}</strong>
-                  </p>
-                )}
-
                 <p className="text-lg font-bold text-emerald-700">
-                  Net Take Home Amount after Final Tax:{' '}
-                  {formatCurrency(netTakeHomeAfterFinalTax)}
+                  Net Take Home Amount after Tax & TDS:{' '}
+                  {formatCurrency(netTakeHomeAfterTaxAndTds)}
                 </p>
 
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  TDS rule: Banks generally deduct TDS if annual FD interest exceeds ₹50,000 for non-senior citizens or ₹1,00,000 for senior citizens. Once the threshold is crossed, TDS is generally calculated on the interest credited, not only on the excess amount. TDS is 10% if PAN is available and may be 20% if PAN is not available. TDS is not final tax; final liability depends on your income tax slab and ITR filing. FD interest is taxable under “Income from Other Sources”.
+                  <strong>TDS Rule:</strong> Banks generally deduct TDS if annual FD
+                  interest exceeds ₹50,000 for non-senior citizens or ₹1,00,000
+                  for senior citizens. TDS is normally deducted at 10% when PAN is
+                  available and may be 20% without PAN.
+
+                  <br /><br />
+
+                  <strong>Disclaimer:</strong> FD interest is taxable as “Income
+                  from Other Sources” as per your applicable income tax slab. TDS is
+                  not an additional tax; it is only an advance tax deducted by the
+                  bank. The net take-home amount shown is an estimate after applying
+                  the selected tax slab on total FD interest. Your actual tax,
+                  refund, or additional payable amount may vary based on your total
+                  income, deductions, tax regime, Form 15G/15H eligibility, PAN
+                  status, bank-specific practices, and final ITR filing.
                 </p>
               </div>
             </div>
           </div>
 
           <p className="text-xs text-slate-500 mt-6">
-            Note: FD result assumes quarterly compounding and uses average annual interest for TDS threshold estimation. Actual bank TDS may vary based on interest credit frequency, Form 15G/15H, PAN status, total income, and bank rules.
+            Note: FD result assumes quarterly compounding and uses average annual
+            interest for TDS threshold estimation. Actual maturity value and TDS may
+            vary based on bank rules, interest credit frequency, compounding method,
+            tax regime, PAN status, and Form 15G/15H eligibility.
           </p>
         </div>
       </div>
