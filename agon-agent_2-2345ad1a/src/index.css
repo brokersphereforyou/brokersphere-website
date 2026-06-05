@@ -1,9 +1,24 @@
 @import "tailwindcss";
 
-/* BrokerSphere clean light theme */
+/* BrokerSphere fintech theme */
+:root {
+  --bs-bg: #f3f6fb;
+  --bs-card: #ffffff;
+  --bs-card-soft: #f8fafc;
+  --bs-text: #0f172a;
+  --bs-text-soft: #334155;
+  --bs-muted: #64748b;
+  --bs-border: #dbe3ef;
+  --bs-green: #00a676;
+  --bs-green-dark: #008f66;
+  --bs-dark-card: #101828;
+  --bs-dark-card-2: #162033;
+}
+
+/* Base */
 html {
   color-scheme: light !important;
-  background: #f6f8fb !important;
+  background: var(--bs-bg) !important;
 }
 
 html,
@@ -15,8 +30,8 @@ body,
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  background: #f6f8fb !important;
-  color: #111827 !important;
+  background: var(--bs-bg) !important;
+  color: var(--bs-text) !important;
 }
 
 * {
@@ -27,34 +42,37 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Main readable colors */
-.text-slate-900,
-.text-slate-800,
-.text-slate-700 {
-  color: #111827 !important;
+/* Stop mobile browser dark-mode color issues */
+@media (prefers-color-scheme: dark) {
+  html,
+  body,
+  #root {
+    background: var(--bs-bg) !important;
+    color: var(--bs-text) !important;
+  }
+
+  * {
+    -webkit-text-fill-color: initial !important;
+  }
 }
 
-.text-slate-600 {
-  color: #334155 !important;
+/* Page backgrounds */
+section,
+main {
+  background: var(--bs-bg) !important;
 }
 
-.text-slate-500,
-.text-slate-400,
-.text-slate-300 {
-  color: #475569 !important;
-}
-
-/* Page and card backgrounds */
+/* Card backgrounds */
 .bg-white {
-  background-color: #ffffff !important;
+  background-color: var(--bs-card) !important;
 }
 
 .bg-slate-50,
 .bg-slate-100 {
-  background-color: #f8fafc !important;
+  background-color: var(--bs-card-soft) !important;
 }
 
-/* Keep dark cards readable instead of turning them white */
+/* Dark cards: keep them dark but readable */
 .bg-slate-950,
 .bg-slate-900,
 .bg-slate-800,
@@ -62,7 +80,7 @@ body {
 .bg-slate-950\/30,
 .bg-slate-900\/50,
 .bg-slate-800\/60 {
-  background-color: #0f172a !important;
+  background-color: var(--bs-dark-card) !important;
   color: #f8fafc !important;
 }
 
@@ -76,31 +94,27 @@ body {
   color: #f8fafc !important;
 }
 
-/* Forms */
-input,
-select,
-textarea {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border-color: #cbd5e1 !important;
-  max-width: 100%;
+/* Text colors */
+.text-slate-900,
+.text-slate-800,
+.text-slate-700 {
+  color: var(--bs-text) !important;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: #64748b !important;
+.text-slate-600 {
+  color: var(--bs-text-soft) !important;
 }
 
-/* Buttons */
-button,
-a {
-  -webkit-text-fill-color: initial !important;
+.text-slate-500,
+.text-slate-400,
+.text-slate-300 {
+  color: var(--bs-muted) !important;
 }
 
+/* Green theme */
 .bg-emerald-600,
-.bg-emerald-700,
-.hover\:bg-emerald-500:hover {
-  background-color: #059669 !important;
+.bg-emerald-700 {
+  background-color: var(--bs-green) !important;
   color: #ffffff !important;
 }
 
@@ -109,46 +123,79 @@ a {
   color: #ffffff !important;
 }
 
-/* Emerald text */
+.hover\:bg-emerald-500:hover,
+.hover\:bg-emerald-600:hover {
+  background-color: var(--bs-green-dark) !important;
+}
+
 .text-emerald-600,
 .text-emerald-700,
 .text-emerald-800 {
-  color: #059669 !important;
+  color: var(--bs-green) !important;
+}
+
+.bg-emerald-50 {
+  background-color: #e8fff7 !important;
+}
+
+.border-emerald-100,
+.border-emerald-200 {
+  border-color: #b8f3df !important;
 }
 
 /* Borders */
+.border-slate-100,
 .border-slate-200,
 .border-slate-300 {
-  border-color: #dbe3ef !important;
+  border-color: var(--bs-border) !important;
 }
 
-.border-slate-800,
-.border-slate-700 {
-  border-color: #1e293b !important;
+.border-slate-700,
+.border-slate-800 {
+  border-color: #263247 !important;
 }
 
-/* Prevent device dark mode bugs */
-@media (prefers-color-scheme: dark) {
-  html,
-  body,
-  #root {
-    background: #f6f8fb !important;
-    color: #111827 !important;
-  }
-
-  * {
-    -webkit-text-fill-color: initial !important;
-  }
-
-  input,
-  select,
-  textarea {
-    background: #ffffff !important;
-    color: #111827 !important;
-  }
+/* Inputs and dropdowns */
+input,
+select,
+textarea {
+  background-color: #ffffff !important;
+  color: var(--bs-text) !important;
+  border-color: #cbd5e1 !important;
+  max-width: 100%;
 }
 
-/* Tables */
+option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Fix invisible Add Broker dropdown */
+select,
+select:focus,
+select:hover {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Buttons and links */
+button,
+a {
+  -webkit-text-fill-color: initial !important;
+}
+
+/* Table scroll */
 .overflow-x-auto {
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -170,7 +217,7 @@ a {
   left: 0 !important;
   z-index: 20 !important;
   background-color: #ffffff !important;
-  color: #111827 !important;
+  color: var(--bs-text) !important;
 }
 
 .freeze-first-col th:first-child {
@@ -204,21 +251,23 @@ a {
   display: none !important;
 }
 
-/* Mobile improvements */
+/* Mobile fixes */
 @media (max-width: 768px) {
   html,
   body,
   #root {
+    background: var(--bs-bg) !important;
     width: 100%;
     max-width: 100%;
     overflow-x: hidden !important;
   }
 
   section {
+    background: var(--bs-bg) !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
-    padding-top: 32px !important;
-    padding-bottom: 32px !important;
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
   }
 
   .max-w-7xl,
@@ -248,6 +297,11 @@ a {
     padding: 12px !important;
   }
 
+  .py-16 {
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
+  }
+
   h1,
   .text-5xl {
     font-size: 30px !important;
@@ -257,7 +311,7 @@ a {
   h2,
   .text-4xl,
   .text-3xl {
-    font-size: 28px !important;
+    font-size: 27px !important;
     line-height: 1.15 !important;
   }
 
@@ -272,11 +326,22 @@ a {
     line-height: 1.25 !important;
   }
 
+  .rounded-2xl {
+    border-radius: 16px !important;
+  }
+
   input,
   select,
   textarea {
     font-size: 16px !important;
     width: 100% !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
   }
 
   button {
@@ -298,5 +363,16 @@ a {
 
   .grid > * {
     min-width: 0;
+  }
+
+  .bg-slate-950,
+  .bg-slate-900,
+  .bg-slate-800,
+  .bg-slate-950\/40,
+  .bg-slate-950\/30,
+  .bg-slate-900\/50,
+  .bg-slate-800\/60 {
+    background-color: var(--bs-dark-card) !important;
+    color: #f8fafc !important;
   }
 }
