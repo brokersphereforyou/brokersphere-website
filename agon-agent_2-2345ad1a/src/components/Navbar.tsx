@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Sun, Moon, Sparkles, ArrowLeftRight, Calculator, BookOpen, Layers, GraduationCap, DollarSign, Award } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Sparkles, ArrowLeftRight, Calculator, BookOpen, Layers, GraduationCap, PiggyBank } from 'lucide-react';
 
 interface NavbarProps {
-  activeTab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'glossary' | 'blogs';
-  setActiveTab: (tab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'glossary' | 'blogs') => void;
+  activeTab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'glossary' | 'blogs';
+  setActiveTab: (tab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'glossary' | 'blogs') => void;
   onBackToBrokers: () => void;
   compareCount: number;
 }
@@ -15,7 +15,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   compareCount
 }) => {
   useEffect(() => {
-    // Force light mode as requested
     document.documentElement.classList.remove('dark');
     localStorage.setItem('theme', 'light');
   }, []);
@@ -24,7 +23,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <div 
             onClick={() => {
               onBackToBrokers();
@@ -41,13 +39,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Nav Links */}
           <nav className="hidden lg:flex items-center gap-1.5">
             {[
               { id: 'brokers', label: 'Directory', icon: Layers },
               { id: 'compare', label: 'Compare Tool', icon: ArrowLeftRight, badge: compareCount > 0 ? compareCount : undefined },
               { id: 'finder', label: 'Broker Finder Quiz', icon: Sparkles },
               { id: 'calculator', label: 'Fee Estimator', icon: Calculator },
+              { id: 'investment', label: 'SIP Calculator', icon: PiggyBank },
               { id: 'blogs', label: 'Trading Guides & Blogs', icon: BookOpen },
               { id: 'glossary', label: 'Trading Glossary', icon: GraduationCap }
             ].map((link) => {
@@ -78,15 +76,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* CTA/Finder Quiz */}
             <button
               onClick={() => {
                 onBackToBrokers();
                 setActiveTab('finder');
               }}
-              className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-505 active:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow transition-all cursor-pointer"
             >
               <Sparkles size={13} />
               Find My Broker
@@ -95,7 +91,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Nav Header (Horizontal scroll on smaller screens) */}
       <div className="lg:hidden border-t border-slate-100 bg-slate-50/80 py-2 px-4 overflow-x-auto no-scrollbar">
         <div className="flex gap-1">
           {[
@@ -103,7 +98,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             { id: 'compare', label: 'Compare', icon: ArrowLeftRight, badge: compareCount > 0 ? compareCount : undefined },
             { id: 'finder', label: 'Quiz', icon: Sparkles },
             { id: 'calculator', label: 'Fees', icon: Calculator },
-            { id: 'blogs', label: 'Blogs & Guides', icon: BookOpen },
+            { id: 'investment', label: 'SIP', icon: PiggyBank },
+            { id: 'blogs', label: 'Blogs', icon: BookOpen },
             { id: 'glossary', label: 'Glossary', icon: GraduationCap }
           ].map((link) => {
             const Icon = link.icon;
