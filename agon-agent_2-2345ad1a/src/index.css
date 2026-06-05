@@ -1,52 +1,145 @@
 @import "tailwindcss";
 
-/* Force browser/device dark mode to keep website readable */
+/* GLOBAL LIGHT THEME FIX */
 html {
-  color-scheme: light;
+  color-scheme: light !important;
+  background: #ffffff !important;
 }
 
 html,
 body,
 #root {
-  background: #ffffff;
-  color: #0f172a;
-  min-height: 100%;
   width: 100%;
   max-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
+  background: #ffffff !important;
+  color: #0f172a !important;
 }
 
 * {
   box-sizing: border-box;
 }
 
-input,
-select,
-textarea,
-button {
-  max-width: 100%;
-}
-
-/* Fix automatic mobile browser dark mode text/background bugs */
+/* Prevent mobile browser dark-mode auto inversion */
 @media (prefers-color-scheme: dark) {
   html,
   body,
-  #root {
-    background: #ffffff !important;
+  #root,
+  section,
+  main,
+  div {
+    background-color: #ffffff;
+  }
+
+  body {
     color: #0f172a !important;
   }
 
   * {
-    -webkit-text-fill-color: initial;
+    -webkit-text-fill-color: initial !important;
   }
 }
 
-/* Freeze first column in tables with .freeze-first-col class */
+/* INPUT FIX */
+input,
+select,
+textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  max-width: 100%;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* BUTTON AND LINK FIX */
+button,
+a {
+  -webkit-text-fill-color: initial !important;
+}
+
+/* FORCE COMMON DARK CLASSES TO LIGHT ON MOBILE/DEVICE DARK MODE */
+.dark,
+.dark body,
+.dark #root {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.dark .bg-slate-950,
+.dark .bg-slate-900,
+.dark .bg-slate-800,
+.dark .bg-slate-950\/40,
+.dark .bg-slate-950\/30,
+.dark .bg-slate-900\/50,
+.dark .bg-slate-800\/60 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.dark .text-white,
+.dark .text-slate-100,
+.dark .text-slate-200,
+.dark .text-slate-300,
+.dark .text-slate-400 {
+  color: #0f172a !important;
+}
+
+.dark .border-slate-800,
+.dark .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+/* LIGHT MODE TEXT READABILITY */
+html:not(.dark) .text-slate-300 {
+  color: #64748b !important;
+}
+
+html:not(.dark) .text-slate-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-slate-500 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-600 {
+  color: #1e293b !important;
+}
+
+/* Keep white text only on colored buttons/cards */
+.bg-emerald-600,
+.bg-emerald-700,
+.bg-red-600,
+.bg-blue-600 {
+  color: #ffffff !important;
+}
+
+.bg-emerald-600 *,
+.bg-emerald-700 *,
+.bg-red-600 *,
+.bg-blue-600 * {
+  color: #ffffff !important;
+}
+
+/* TABLE FREEZE FIRST COLUMN */
 .freeze-first-col th:first-child,
 .freeze-first-col td:first-child {
   position: sticky !important;
   left: 0 !important;
   z-index: 20 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.freeze-first-col th:first-child {
+  background-color: #f8fafc !important;
 }
 
 .freeze-first-col th:first-child::after,
@@ -57,32 +150,12 @@ button {
   right: 0;
   bottom: 0;
   width: 4px;
-  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 0 4px -2px rgba(15, 23, 42, 0.25);
   pointer-events: none;
-}
-
-.freeze-first-col th:first-child {
-  background-color: #f8fafc !important;
-}
-
-.dark .freeze-first-col th:first-child {
-  background-color: #020617 !important;
-}
-
-.freeze-first-col td:first-child {
-  background-color: #ffffff !important;
-}
-
-.dark .freeze-first-col td:first-child {
-  background-color: #0f172a !important;
 }
 
 .freeze-first-col tr:hover td:first-child {
   background-color: #f1f5f9 !important;
-}
-
-.dark .freeze-first-col tr:hover td:first-child {
-  background-color: #0b0f19 !important;
 }
 
 .freeze-first-col td[colspan]:first-child {
@@ -96,7 +169,7 @@ button {
   display: none !important;
 }
 
-/* Scrollbar */
+/* SCROLLBAR */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -106,52 +179,21 @@ button {
   scrollbar-width: none;
 }
 
-/* Improve readability in light mode */
-html:not(.dark) .text-slate-400 {
-  color: #576574 !important;
+/* TABLE MOBILE SCROLL */
+.overflow-x-auto {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
-html:not(.dark) .text-slate-500 {
-  color: #3b4b5c !important;
-}
-
-html:not(.dark) .text-slate-600 {
-  color: #2c3a47 !important;
-}
-
-html:not(.dark) .text-slate-300 {
-  color: #8395a7 !important;
-}
-
-html:not(.dark) .text-slate-400.group-hover\:text-white,
-html:not(.dark) .text-slate-500.group-hover\:text-white,
-html:not(.dark) .text-slate-600.group-hover\:text-white {
-  color: white !important;
-}
-
-html:not(.dark) .text-white {
-  color: #ffffff;
-}
-
-html:not(.dark) .bg-white,
-html:not(.dark) .bg-slate-50,
-html:not(.dark) .bg-slate-100 {
-  color: #0f172a;
-}
-
-button,
-a {
-  -webkit-text-fill-color: initial;
-}
-
-/* Mobile global fixes */
+/* MOBILE FIXES */
 @media (max-width: 768px) {
   html,
   body,
   #root {
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
+    background: #ffffff !important;
   }
 
   section {
@@ -159,6 +201,7 @@ a {
     padding-right: 10px !important;
     padding-top: 28px !important;
     padding-bottom: 28px !important;
+    background: #ffffff !important;
   }
 
   .max-w-7xl,
@@ -172,8 +215,8 @@ a {
   .px-4,
   .px-6,
   .px-8 {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 
   .p-6 {
@@ -193,17 +236,21 @@ a {
     padding-bottom: 32px !important;
   }
 
-  h1 {
+  h1,
+  .text-5xl {
     font-size: 30px !important;
     line-height: 1.15 !important;
   }
 
-  h2 {
+  h2,
+  .text-4xl,
+  .text-3xl {
     font-size: 28px !important;
     line-height: 1.15 !important;
   }
 
-  h3 {
+  h3,
+  .text-2xl {
     font-size: 22px !important;
     line-height: 1.2 !important;
   }
@@ -211,18 +258,6 @@ a {
   h4 {
     font-size: 18px !important;
     line-height: 1.25 !important;
-  }
-
-  .text-5xl,
-  .text-4xl,
-  .text-3xl {
-    font-size: 28px !important;
-    line-height: 1.15 !important;
-  }
-
-  .text-2xl {
-    font-size: 22px !important;
-    line-height: 1.2 !important;
   }
 
   .rounded-2xl {
@@ -234,15 +269,12 @@ a {
   textarea {
     font-size: 16px !important;
     width: 100% !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
   }
 
   button {
     min-height: 40px;
-  }
-
-  .overflow-x-auto {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
   }
 
   table {
@@ -260,5 +292,38 @@ a {
 
   .grid > * {
     min-width: 0;
+  }
+
+  /* Make dark cards readable on mobile */
+  .bg-slate-950,
+  .bg-slate-900,
+  .bg-slate-800,
+  .bg-slate-950\/40,
+  .bg-slate-950\/30,
+  .bg-slate-900\/50,
+  .bg-slate-800\/60 {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  .text-white,
+  .text-slate-100,
+  .text-slate-200,
+  .text-slate-300,
+  .text-slate-400 {
+    color: #0f172a !important;
+  }
+
+  /* Keep green buttons readable */
+  .bg-emerald-600,
+  .bg-emerald-700 {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+  }
+
+  .bg-emerald-600 *,
+  .bg-emerald-700 * {
+    color: #ffffff !important;
   }
 }
