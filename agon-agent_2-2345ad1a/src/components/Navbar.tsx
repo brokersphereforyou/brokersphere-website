@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { Sparkles, ArrowLeftRight, Calculator, BookOpen, Layers, GraduationCap, PiggyBank } from 'lucide-react';
 
 interface NavbarProps {
-  activeTab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'emi' | 'fd' | 'glossary' | 'blogs';
-  setActiveTab: (tab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'emi' | 'fd' | 'glossary' | 'blogs') => void;
+  activeTab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'emi' | 'fd' | 'incometax' | 'glossary' | 'blogs';
+  setActiveTab: (tab: 'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'emi' | 'fd' | 'incometax' | 'glossary' | 'blogs') => void;
   onBackToBrokers: () => void;
   compareCount: number;
 }
@@ -47,6 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               { id: 'investment', label: 'SIP Calculator', icon: PiggyBank },
               { id: 'emi', label: 'EMI Calculator', icon: Calculator },
               { id: 'fd', label: 'FD Calculator', icon: Calculator },
+              { id: 'incometax', label: 'Income Tax Calculator', icon: Calculator },
               { id: 'finder', label: 'Broker Finder Quiz', icon: Sparkles },
               { id: 'blogs', label: 'Trading Guides & Blogs', icon: BookOpen },
               { id: 'glossary', label: 'Trading Glossary', icon: GraduationCap }
@@ -102,6 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             { id: 'investment', label: 'SIP', icon: PiggyBank },
             { id: 'emi', label: 'EMI', icon: Calculator },
             { id: 'fd', label: 'FD', icon: Calculator },
+            { id: 'incometax', label: 'Tax', icon: Calculator },
             { id: 'finder', label: 'Quiz', icon: Sparkles },
             { id: 'blogs', label: 'Blogs', icon: BookOpen },
             { id: 'glossary', label: 'Glossary', icon: GraduationCap }
