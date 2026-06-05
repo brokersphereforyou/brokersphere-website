@@ -1077,7 +1077,74 @@ export const brokersData: Broker[] = [
     verdict: 'Choice Broking is an excellent, fast-growing full-service broker in India. By combining the best aspects of discount brokers (₹0 delivery brokerage and flat ₹20 F&O) with full-service benefits (free daily tips, expert stock recommendations, and physical branches), it is a superb choice for retail investors.',
     yearFounded: 1993,
     headquarters: 'Mumbai, Maharashtra',
-    accountOpeningUrl: 'https://choiceindia.com/'
+       accountOpeningUrl: 'https://choiceindia.com/'
+  },
+  {
+    id: 'capmint',
+    name: 'CapMint',
+    logoColor: 'bg-emerald-600 text-white',
+    tagline: 'Low-cost broker with flat ₹15 pricing',
+    rating: 4.2,
+    ratingsBreakdown: {
+      usability: 4.2,
+      mobileApp: 4.1,
+      research: 3.8,
+      pricing: 4.7,
+      customerService: 4.0
+    },
+    targetAudience: 'Beginner traders and F&O traders',
+    minDeposit: 0,
+    stockCommission: 0,
+    optionsCommission: {
+      base: 15,
+      perContract: 15
+    },
+    cryptoFee: '₹13.5 + GST per debit transaction',
+    cryptoFeeRate: 15.93,
+    marginRateBase: 12.0,
+    marginRateTiers: [
+      { limit: 100000, rate: 12.0 }
+    ],
+    inactivityFee: 0,
+    wireFee: 0,
+    features: {
+      fractionalShares: false,
+      paperTrading: false,
+      roboAdvisor: false,
+      researchTools: 'Basic',
+      liveData: true,
+      mobileApp: 'Good',
+      apiTrading: false,
+      shortSelling: true,
+      usStocks: false,
+      mutualFunds: false
+    },
+    investmentProducts: [
+      'Equity Stocks',
+      'ETFs',
+      'IPOs',
+      'Futures & Options (F&O)'
+    ],
+    accountTypes: ['Trading & Demat Account'],
+    customerSupport: {
+      phone: 'Official website',
+      chat: 'Available',
+      email: 'Official website'
+    },
+    pros: [
+      'Zero account opening fee',
+      'Zero AMC',
+      '₹0 delivery brokerage',
+      '₹15 flat F&O brokerage'
+    ],
+    cons: [
+      'Newer broker',
+      'Limited research tools'
+    ],
+    verdict: 'CapMint is a low-cost broker focused on traders seeking simple pricing and low brokerage.',
+    yearFounded: 2023,
+    headquarters: 'India',
+    accountOpeningUrl: 'https://www.capmint.com/'
   }
 ];
 
