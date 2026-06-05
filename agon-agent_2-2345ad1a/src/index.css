@@ -11,6 +11,7 @@ body,
   background: #ffffff;
   color: #0f172a;
   min-height: 100%;
+  width: 100%;
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -48,7 +49,6 @@ button {
   z-index: 20 !important;
 }
 
-/* Add shadow separator for frozen column to look clean */
 .freeze-first-col th:first-child::after,
 .freeze-first-col td:first-child::after {
   content: '';
@@ -61,7 +61,6 @@ button {
   pointer-events: none;
 }
 
-/* Ensure background color stays solid on sticky cells so columns don't overlap underneath */
 .freeze-first-col th:first-child {
   background-color: #f8fafc !important;
 }
@@ -78,7 +77,6 @@ button {
   background-color: #0f172a !important;
 }
 
-/* On row hover, also color the sticky column cell to match the rest of the row */
 .freeze-first-col tr:hover td:first-child {
   background-color: #f1f5f9 !important;
 }
@@ -87,7 +85,6 @@ button {
   background-color: #0b0f19 !important;
 }
 
-/* Prevent colSpan rows from being frozen */
 .freeze-first-col td[colspan]:first-child {
   position: relative !important;
   left: auto !important;
@@ -99,7 +96,7 @@ button {
   display: none !important;
 }
 
-/* Custom scrollbar styling for horizontal scroll tables */
+/* Scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -132,7 +129,6 @@ html:not(.dark) .text-slate-600.group-hover\:text-white {
   color: white !important;
 }
 
-/* Extra safety: prevent white text on white background in mobile dark mode */
 html:not(.dark) .text-white {
   color: #ffffff;
 }
@@ -143,14 +139,13 @@ html:not(.dark) .bg-slate-100 {
   color: #0f172a;
 }
 
-/* Keep buttons and colored cards readable */
 button,
 a {
   -webkit-text-fill-color: initial;
 }
 
-/* Better mobile responsiveness */
-@media (max-width: 640px) {
+/* Mobile global fixes */
+@media (max-width: 768px) {
   html,
   body,
   #root {
@@ -160,8 +155,42 @@ a {
   }
 
   section {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
+  }
+
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .px-4,
+  .px-6,
+  .px-8 {
     padding-left: 12px !important;
     padding-right: 12px !important;
+  }
+
+  .p-6 {
+    padding: 16px !important;
+  }
+
+  .p-5 {
+    padding: 14px !important;
+  }
+
+  .p-4 {
+    padding: 12px !important;
+  }
+
+  .py-16 {
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
   }
 
   h1 {
@@ -184,34 +213,20 @@ a {
     line-height: 1.25 !important;
   }
 
-  .rounded-2xl {
-    border-radius: 16px !important;
-  }
-
-  .p-6 {
-    padding: 16px !important;
-  }
-
-  .p-5 {
-    padding: 14px !important;
-  }
-
-  .p-4 {
-    padding: 12px !important;
-  }
-
-  .py-16 {
-    padding-top: 32px !important;
-    padding-bottom: 32px !important;
-  }
-
-  .text-3xl,
-  .text-4xl {
+  .text-5xl,
+  .text-4xl,
+  .text-3xl {
     font-size: 28px !important;
+    line-height: 1.15 !important;
   }
 
   .text-2xl {
     font-size: 22px !important;
+    line-height: 1.2 !important;
+  }
+
+  .rounded-2xl {
+    border-radius: 16px !important;
   }
 
   input,
@@ -226,6 +241,7 @@ a {
   }
 
   .overflow-x-auto {
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -236,17 +252,6 @@ a {
   table th,
   table td {
     white-space: nowrap;
-  }
-
-  .sticky {
-    position: relative !important;
-  }
-
-  .max-w-7xl,
-  .max-w-6xl,
-  .max-w-5xl,
-  .max-w-4xl {
-    max-width: 100% !important;
   }
 
   .grid {
