@@ -1,54 +1,87 @@
 @import "tailwindcss";
 
-/* GLOBAL LIGHT THEME FIX */
+/* BrokerSphere clean light theme */
 html {
   color-scheme: light !important;
-  background: #ffffff !important;
+  background: #f6f8fb !important;
 }
 
 html,
 body,
 #root {
-  width: 100%;
-  max-width: 100%;
-  min-height: 100%;
   margin: 0;
   padding: 0;
+  min-height: 100%;
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
-  background: #ffffff !important;
-  color: #0f172a !important;
+  background: #f6f8fb !important;
+  color: #111827 !important;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Prevent mobile browser dark-mode auto inversion */
-@media (prefers-color-scheme: dark) {
-  html,
-  body,
-  #root,
-  section,
-  main,
-  div {
-    background-color: #ffffff;
-  }
-
-  body {
-    color: #0f172a !important;
-  }
-
-  * {
-    -webkit-text-fill-color: initial !important;
-  }
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* INPUT FIX */
+/* Main readable colors */
+.text-slate-900,
+.text-slate-800,
+.text-slate-700 {
+  color: #111827 !important;
+}
+
+.text-slate-600 {
+  color: #334155 !important;
+}
+
+.text-slate-500,
+.text-slate-400,
+.text-slate-300 {
+  color: #475569 !important;
+}
+
+/* Page and card backgrounds */
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+.bg-slate-50,
+.bg-slate-100 {
+  background-color: #f8fafc !important;
+}
+
+/* Keep dark cards readable instead of turning them white */
+.bg-slate-950,
+.bg-slate-900,
+.bg-slate-800,
+.bg-slate-950\/40,
+.bg-slate-950\/30,
+.bg-slate-900\/50,
+.bg-slate-800\/60 {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.bg-slate-950 *,
+.bg-slate-900 *,
+.bg-slate-800 *,
+.bg-slate-950\/40 *,
+.bg-slate-950\/30 *,
+.bg-slate-900\/50 *,
+.bg-slate-800\/60 * {
+  color: #f8fafc !important;
+}
+
+/* Forms */
 input,
 select,
 textarea {
   background: #ffffff !important;
-  color: #0f172a !important;
+  color: #111827 !important;
   border-color: #cbd5e1 !important;
   max-width: 100%;
 }
@@ -58,88 +91,90 @@ textarea::placeholder {
   color: #64748b !important;
 }
 
-/* BUTTON AND LINK FIX */
+/* Buttons */
 button,
 a {
   -webkit-text-fill-color: initial !important;
 }
 
-/* FORCE COMMON DARK CLASSES TO LIGHT ON MOBILE/DEVICE DARK MODE */
-.dark,
-.dark body,
-.dark #root {
-  background: #ffffff !important;
-  color: #0f172a !important;
-}
-
-.dark .bg-slate-950,
-.dark .bg-slate-900,
-.dark .bg-slate-800,
-.dark .bg-slate-950\/40,
-.dark .bg-slate-950\/30,
-.dark .bg-slate-900\/50,
-.dark .bg-slate-800\/60 {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-}
-
-.dark .text-white,
-.dark .text-slate-100,
-.dark .text-slate-200,
-.dark .text-slate-300,
-.dark .text-slate-400 {
-  color: #0f172a !important;
-}
-
-.dark .border-slate-800,
-.dark .border-slate-700 {
-  border-color: #e2e8f0 !important;
-}
-
-/* LIGHT MODE TEXT READABILITY */
-html:not(.dark) .text-slate-300 {
-  color: #64748b !important;
-}
-
-html:not(.dark) .text-slate-400 {
-  color: #475569 !important;
-}
-
-html:not(.dark) .text-slate-500 {
-  color: #334155 !important;
-}
-
-html:not(.dark) .text-slate-600 {
-  color: #1e293b !important;
-}
-
-/* Keep white text only on colored buttons/cards */
 .bg-emerald-600,
 .bg-emerald-700,
-.bg-red-600,
-.bg-blue-600 {
+.hover\:bg-emerald-500:hover {
+  background-color: #059669 !important;
   color: #ffffff !important;
 }
 
 .bg-emerald-600 *,
-.bg-emerald-700 *,
-.bg-red-600 *,
-.bg-blue-600 * {
+.bg-emerald-700 * {
   color: #ffffff !important;
 }
 
-/* TABLE FREEZE FIRST COLUMN */
+/* Emerald text */
+.text-emerald-600,
+.text-emerald-700,
+.text-emerald-800 {
+  color: #059669 !important;
+}
+
+/* Borders */
+.border-slate-200,
+.border-slate-300 {
+  border-color: #dbe3ef !important;
+}
+
+.border-slate-800,
+.border-slate-700 {
+  border-color: #1e293b !important;
+}
+
+/* Prevent device dark mode bugs */
+@media (prefers-color-scheme: dark) {
+  html,
+  body,
+  #root {
+    background: #f6f8fb !important;
+    color: #111827 !important;
+  }
+
+  * {
+    -webkit-text-fill-color: initial !important;
+  }
+
+  input,
+  select,
+  textarea {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+}
+
+/* Tables */
+.overflow-x-auto {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Frozen first column */
 .freeze-first-col th:first-child,
 .freeze-first-col td:first-child {
   position: sticky !important;
   left: 0 !important;
   z-index: 20 !important;
   background-color: #ffffff !important;
-  color: #0f172a !important;
+  color: #111827 !important;
 }
 
 .freeze-first-col th:first-child {
-  background-color: #f8fafc !important;
+  background-color: #f1f5f9 !important;
 }
 
 .freeze-first-col th:first-child::after,
@@ -155,7 +190,7 @@ html:not(.dark) .text-slate-600 {
 }
 
 .freeze-first-col tr:hover td:first-child {
-  background-color: #f1f5f9 !important;
+  background-color: #eef2f7 !important;
 }
 
 .freeze-first-col td[colspan]:first-child {
@@ -169,23 +204,7 @@ html:not(.dark) .text-slate-600 {
   display: none !important;
 }
 
-/* SCROLLBAR */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* TABLE MOBILE SCROLL */
-.overflow-x-auto {
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* MOBILE FIXES */
+/* Mobile improvements */
 @media (max-width: 768px) {
   html,
   body,
@@ -193,15 +212,13 @@ html:not(.dark) .text-slate-600 {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden !important;
-    background: #ffffff !important;
   }
 
   section {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    padding-top: 28px !important;
-    padding-bottom: 28px !important;
-    background: #ffffff !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
   }
 
   .max-w-7xl,
@@ -215,8 +232,8 @@ html:not(.dark) .text-slate-600 {
   .px-4,
   .px-6,
   .px-8 {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
   }
 
   .p-6 {
@@ -229,11 +246,6 @@ html:not(.dark) .text-slate-600 {
 
   .p-4 {
     padding: 12px !important;
-  }
-
-  .py-16 {
-    padding-top: 32px !important;
-    padding-bottom: 32px !important;
   }
 
   h1,
@@ -260,17 +272,11 @@ html:not(.dark) .text-slate-600 {
     line-height: 1.25 !important;
   }
 
-  .rounded-2xl {
-    border-radius: 16px !important;
-  }
-
   input,
   select,
   textarea {
     font-size: 16px !important;
     width: 100% !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
   }
 
   button {
@@ -292,38 +298,5 @@ html:not(.dark) .text-slate-600 {
 
   .grid > * {
     min-width: 0;
-  }
-
-  /* Make dark cards readable on mobile */
-  .bg-slate-950,
-  .bg-slate-900,
-  .bg-slate-800,
-  .bg-slate-950\/40,
-  .bg-slate-950\/30,
-  .bg-slate-900\/50,
-  .bg-slate-800\/60 {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border-color: #e2e8f0 !important;
-  }
-
-  .text-white,
-  .text-slate-100,
-  .text-slate-200,
-  .text-slate-300,
-  .text-slate-400 {
-    color: #0f172a !important;
-  }
-
-  /* Keep green buttons readable */
-  .bg-emerald-600,
-  .bg-emerald-700 {
-    background-color: #059669 !important;
-    color: #ffffff !important;
-  }
-
-  .bg-emerald-600 *,
-  .bg-emerald-700 * {
-    color: #ffffff !important;
   }
 }
