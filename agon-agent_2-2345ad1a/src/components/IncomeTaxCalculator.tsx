@@ -531,8 +531,15 @@ export default function IncomeTaxCalculator() {
           </div>
 
           <p className="text-xs text-slate-500 leading-relaxed">
-            Tax Disclaimer: This is a simplified income tax calculator for resident salaried individuals for FY 2025-26 / AY 2026-27. It uses new-regime slabs and standard deductions currently listed by the Income Tax Department, and old-regime slabs with common deductions. It does not include surcharge, marginal relief, HRA calculation, LTA, employer NPS, capital gains, business income, special-rate income, house property loss rules or advanced tax provisions. Please consult a qualified tax advisor before making tax or investment decisions. :contentReference[oaicite:0]{index=0}
-          </p>
+  Tax Disclaimer: This is a simplified income tax calculator for resident
+  salaried individuals for FY 2025-26 / AY 2026-27. It uses new-regime slabs,
+  standard deductions, and old-regime slabs with common deductions. It does not
+  include surcharge, marginal relief, HRA calculation, LTA, employer NPS, capital
+  gains, business income, special-rate income, house property loss rules or
+  advanced tax provisions. Please verify the latest rules on the official Income
+  Tax Department website or consult a qualified tax advisor before making tax or
+  investment decisions.
+</p>
         </div>
       </div>
     </section>
