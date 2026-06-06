@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Broker, brokersData } from '../data/brokers';
 import { BrokerLogo } from './BrokerLogo';
-import { Check, X, Star, Sparkles, HelpCircle, ArrowLeftRight, Trash2, Plus } from 'lucide-react';
+import BrokerDropdown from './BrokerDropdown';
+import { Check, X, Star, ArrowLeftRight, Trash2, Plus } from 'lucide-react';
 
 interface CompareMatrixProps {
   selectedIds: string[];
@@ -23,18 +24,15 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
   const selectedBrokers = brokersData.filter(b => selectedIds.includes(b.id));
   const availableBrokers = brokersData.filter(b => !selectedIds.includes(b.id));
 
-  // Render rating stars
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-1 justify-center">
-        <Star size={14} className="fill-amber-400 text-amber-400" />
-        <span className="font-bold text-slate-800 dark:text-white text-sm">{rating}</span>
-      </div>
-    );
-  };
+  const renderStars = (rating: number) => (
+    <div className="flex items-center gap-1 justify-center">
+      <Star size={14} className="fill-amber-400 text-amber-400" />
+      <span className="font-bold text-slate-800 dark:text-white text-sm">{rating}</span>
+    </div>
+  );
 
-  const renderBoolean = (val: boolean) => {
-    return val ? (
+  const renderBoolean = (val: boolean) =>
+    val ? (
       <div className="flex justify-center">
         <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
           <Check size={14} className="stroke-[3]" />
@@ -47,7 +45,6 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
         </div>
       </div>
     );
-  };
 
   const renderTextBadge = (text: string, style: 'green' | 'blue' | 'purple' | 'gray') => {
     const styles = {
@@ -64,20 +61,26 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
     );
   };
 
-  // If no brokers are selected
   if (selectedBrokers.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center max-w-3xl mx-auto shadow-sm">
         <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100 dark:border-emerald-900/30">
           <ArrowLeftRight size={28} />
         </div>
-        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Compare Trading Platforms Side-by-Side</h3>
+
+        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+          Compare Trading Platforms Side-by-Side
+        </h3>
+
         <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto mb-6">
           Select up to 3 brokers to compare their commissions, margin rates, investment products, research tools, and more side-by-side.
         </p>
 
         <div className="space-y-4">
-          <span className="text-xs uppercase font-bold tracking-wider text-slate-400 block">Choose Brokers to Add</span>
+          <span className="text-xs uppercase font-bold tracking-wider text-slate-400 block">
+            Choose Brokers to Add
+          </span>
+
           <div className="flex flex-wrap justify-center gap-2.5">
             {brokersData.map((b) => (
               <button
@@ -96,27 +99,34 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Selection Header */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row gap-5 items-center justify-between">
+    <div className="space-y-6 overflow-visible">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row gap-5 items-center justify-between overflow-visible">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-lg flex items-center justify-center">
             <ArrowLeftRight size={20} />
           </div>
+
           <div>
-            <h3 className="font-bold text-slate-800 dark:text-white text-base">Comparing {selectedBrokers.length} of 3 platforms</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Add more or swap platforms to refine your decision.</p>
+            <h3 className="font-bold text-slate-800 dark:text-white text-base">
+              Comparing {selectedBrokers.length} of 3 platforms
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+              Add more or swap platforms to refine your decision.
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-          {/* Selected Badges */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end overflow-visible">
           <div className="flex flex-wrap gap-2 mr-2">
             {selectedBrokers.map(b => (
-              <div key={b.id} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+              <div
+                key={b.id}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60"
+              >
                 <BrokerLogo id={b.id} className="w-4 h-4" />
                 {b.name.split(' ')[0]}
-                <button 
+
+                <button
                   onClick={() => onRemove(b.id)}
                   className="text-slate-400 hover:text-rose-500 cursor-pointer transition-colors ml-1"
                   title="Remove broker"
@@ -127,30 +137,12 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
             ))}
           </div>
 
-          {/* Add Dropdown or Quick Add buttons */}
           {selectedBrokers.length < 3 && availableBrokers.length > 0 && (
-            <div className="relative">
-              <select
-                onChange={(e) => {
-                  if (e.target.value) {
-                    onAdd(e.target.value);
-                    e.target.value = '';
-                  }
-                }}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3 py-2 rounded-lg border-none cursor-pointer outline-none shadow-sm transition-all"
-              >
-                <option value="" className="text-slate-800 dark:text-white bg-white dark:bg-slate-900">Add Broker...</option>
-                {availableBrokers.map(b => (
-                  <option 
-                    key={b.id} 
-                    value={b.id} 
-                    className="text-slate-800 dark:text-white bg-white dark:bg-slate-900"
-                  >
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <BrokerDropdown
+              brokers={brokersData}
+              selectedIds={selectedIds}
+              onSelect={onAdd}
+            />
           )}
 
           {selectedBrokers.length > 0 && (
@@ -165,7 +157,6 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
         </div>
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar border-b border-slate-200 dark:border-slate-800">
         {(['all', 'basic', 'fees', 'features', 'products'] as const).map((tab) => (
           <button
@@ -182,19 +173,22 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
         ))}
       </div>
 
-      {/* Comparison Table */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed min-w-[640px] freeze-first-col">
-            {/* Sticky Header */}
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800">
-                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider w-1/4">Broker Specs</th>
+                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider w-1/4">
+                  Broker Specs
+                </th>
+
                 {selectedBrokers.map(b => (
                   <th key={b.id} className="p-4 text-center border-l border-slate-200/60 dark:border-slate-800/60">
                     <div className="flex flex-col items-center">
                       <BrokerLogo id={b.id} className="w-10 h-10 mb-2" />
-                      <span className="font-bold text-slate-800 dark:text-white text-sm line-clamp-1">{b.name}</span>
+                      <span className="font-bold text-slate-800 dark:text-white text-sm line-clamp-1">
+                        {b.name}
+                      </span>
                       <button
                         onClick={() => onSelectBroker(b.id)}
                         className="mt-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
@@ -204,14 +198,16 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                     </div>
                   </th>
                 ))}
-                {/* Empty column slots to keep table layout consistent if less than 3 brokers are selected */}
+
                 {Array.from({ length: 3 - selectedBrokers.length }).map((_, i) => (
                   <th key={`empty-h-${i}`} className="p-4 text-center border-l border-slate-200/60 dark:border-slate-800/60 text-slate-300 dark:text-slate-700">
                     <div className="flex flex-col items-center justify-center py-4">
                       <div className="w-10 h-10 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center mb-2">
                         <Plus size={16} className="text-slate-400" />
                       </div>
-                      <span className="text-xs text-slate-400 font-medium italic">Empty slot</span>
+                      <span className="text-xs text-slate-400 font-medium italic">
+                        Empty slot
+                      </span>
                     </div>
                   </th>
                 ))}
@@ -219,7 +215,6 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
             </thead>
 
             <tbody>
-              {/* SECTION: BASIC INFO */}
               {(activeSection === 'all' || activeSection === 'basic') && (
                 <>
                   <tr className="bg-slate-100/50 dark:bg-slate-800/30">
@@ -227,6 +222,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       Basic Information
                     </td>
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Overall Rating</td>
                     {selectedBrokers.map(b => (
@@ -238,6 +234,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-rating-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Target Audience</td>
                     {selectedBrokers.map(b => (
@@ -249,6 +246,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-target-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Account Opening Fee</td>
                     {selectedBrokers.map(b => (
@@ -260,6 +258,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-min-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Year Founded</td>
                     {selectedBrokers.map(b => (
@@ -271,6 +270,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-founded-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Headquarters</td>
                     {selectedBrokers.map(b => (
@@ -285,7 +285,6 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                 </>
               )}
 
-              {/* SECTION: FEES & RATES */}
               {(activeSection === 'all' || activeSection === 'fees') && (
                 <>
                   <tr className="bg-slate-100/50 dark:bg-slate-800/30">
@@ -293,12 +292,13 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       Commissions, Rates, & Fees
                     </td>
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Delivery Brokerage</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {b.stockCommission === 0 
-                          ? renderTextBadge('Free (₹0)', 'green') 
+                        {b.stockCommission === 0
+                          ? renderTextBadge('Free (₹0)', 'green')
                           : <span className="font-bold text-slate-800 dark:text-white">₹{b.stockCommission}</span>}
                       </td>
                     ))}
@@ -306,6 +306,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-stockfee-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Intraday & F&O Brokerage</td>
                     {selectedBrokers.map(b => (
@@ -317,6 +318,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-optfee-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Demat DP Charges</td>
                     {selectedBrokers.map(b => (
@@ -328,6 +330,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-cryptfee-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">MTF Interest Rate (Base)</td>
                     {selectedBrokers.map(b => (
@@ -341,12 +344,13 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-marginfee-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Annual AMC (+ GST)</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {b.inactivityFee === 0 
-                          ? renderTextBadge('Free (₹0)', 'green') 
+                        {b.inactivityFee === 0
+                          ? renderTextBadge('Free (₹0)', 'green')
                           : <span className="font-bold text-slate-800 dark:text-white">₹{b.inactivityFee}/yr</span>}
                       </td>
                     ))}
@@ -354,12 +358,13 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-inactfee-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Fund Transfer Fee</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60 text-xs font-semibold">
-                        {b.wireFee === 0 
-                          ? renderTextBadge('Free', 'green') 
+                        {b.wireFee === 0
+                          ? renderTextBadge('Free', 'green')
                           : <span className="text-slate-700 dark:text-slate-300">₹{b.wireFee} (Netbanking)</span>}
                       </td>
                     ))}
@@ -370,7 +375,6 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                 </>
               )}
 
-              {/* SECTION: FEATURES */}
               {(activeSection === 'all' || activeSection === 'features') && (
                 <>
                   <tr className="bg-slate-100/50 dark:bg-slate-800/30">
@@ -378,33 +382,31 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       Platform Features
                     </td>
                   </tr>
-                  <tr className="border-b border-slate-100 dark:border-slate-800/60">
-                    <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Paper/Virtual Trading</td>
-                    {selectedBrokers.map(b => (
-                      <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {renderBoolean(b.features.paperTrading)}
-                      </td>
-                    ))}
-                    {Array.from({ length: 3 - selectedBrokers.length }).map((_, i) => (
-                      <td key={`empty-paper-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
-                    ))}
-                  </tr>
-                  <tr className="border-b border-slate-100 dark:border-slate-800/60">
-                    <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Direct Mutual Funds</td>
-                    {selectedBrokers.map(b => (
-                      <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {renderBoolean(b.features.roboAdvisor)}
-                      </td>
-                    ))}
-                    {Array.from({ length: 3 - selectedBrokers.length }).map((_, i) => (
-                      <td key={`empty-robo-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
-                    ))}
-                  </tr>
+
+                  {[
+                    ['Paper/Virtual Trading', 'paperTrading'],
+                    ['Direct Mutual Funds', 'roboAdvisor'],
+                    ['Algo Trading Supported', 'apiTrading'],
+                    ['Intraday Short Selling', 'shortSelling']
+                  ].map(([label, key]) => (
+                    <tr key={key} className="border-b border-slate-100 dark:border-slate-800/60">
+                      <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</td>
+                      {selectedBrokers.map(b => (
+                        <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
+                          {renderBoolean((b.features as any)[key])}
+                        </td>
+                      ))}
+                      {Array.from({ length: 3 - selectedBrokers.length }).map((_, i) => (
+                        <td key={`empty-${key}-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
+                      ))}
+                    </tr>
+                  ))}
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Research & Charting</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {b.features.researchTools === 'Advanced' 
+                        {b.features.researchTools === 'Advanced'
                           ? renderTextBadge('Advanced', 'purple')
                           : b.features.researchTools === 'Standard'
                           ? renderTextBadge('Standard', 'blue')
@@ -415,11 +417,12 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-research-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Trading App Quality</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {b.features.mobileApp === 'Excellent' 
+                        {b.features.mobileApp === 'Excellent'
                           ? renderTextBadge('Excellent', 'green')
                           : b.features.mobileApp === 'Good'
                           ? renderTextBadge('Good', 'blue')
@@ -430,32 +433,9 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-mobile-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
-                  <tr className="border-b border-slate-100 dark:border-slate-800/60">
-                    <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Algo Trading Supported</td>
-                    {selectedBrokers.map(b => (
-                      <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {renderBoolean(b.features.apiTrading)}
-                      </td>
-                    ))}
-                    {Array.from({ length: 3 - selectedBrokers.length }).map((_, i) => (
-                      <td key={`empty-api-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
-                    ))}
-                  </tr>
-                  <tr className="border-b border-slate-100 dark:border-slate-800/60">
-                    <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Intraday Short Selling</td>
-                    {selectedBrokers.map(b => (
-                      <td key={b.id} className="p-4 text-center border-l border-slate-100 dark:border-slate-800/60">
-                        {renderBoolean(b.features.shortSelling)}
-                      </td>
-                    ))}
-                    {Array.from({ length: 3 - selectedBrokers.length }).map((_, i) => (
-                      <td key={`empty-short-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
-                    ))}
-                  </tr>
                 </>
               )}
 
-              {/* SECTION: PRODUCTS */}
               {(activeSection === 'all' || activeSection === 'products') && (
                 <>
                   <tr className="bg-slate-100/50 dark:bg-slate-800/30">
@@ -463,6 +443,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       Investment Products
                     </td>
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Available Products</td>
                     {selectedBrokers.map(b => (
@@ -480,6 +461,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-products-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Supported Accounts</td>
                     {selectedBrokers.map(b => (
@@ -494,6 +476,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-accounts-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400">Customer Support</td>
                     {selectedBrokers.map(b => (
@@ -509,7 +492,6 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                 </>
               )}
 
-              {/* SECTION: PROS & CONS */}
               {activeSection === 'all' && (
                 <>
                   <tr className="bg-slate-100/50 dark:bg-slate-800/30">
@@ -517,13 +499,16 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       Pros & Cons Summary
                     </td>
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 vertical-align-top">Key Advantages</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 border-l border-slate-100 dark:border-slate-800/60 text-xs">
                         <ul className="space-y-1.5 text-slate-700 dark:text-slate-300 list-disc list-inside">
                           {b.pros.slice(0, 3).map((pro, idx) => (
-                            <li key={idx} className="leading-relaxed"><span className="text-emerald-600 dark:text-emerald-400 font-medium">{pro}</span></li>
+                            <li key={idx} className="leading-relaxed">
+                              <span className="text-emerald-600 dark:text-emerald-400 font-medium">{pro}</span>
+                            </li>
                           ))}
                         </ul>
                       </td>
@@ -532,13 +517,16 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-pros-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 vertical-align-top">Key Drawbacks</td>
                     {selectedBrokers.map(b => (
                       <td key={b.id} className="p-4 border-l border-slate-100 dark:border-slate-800/60 text-xs">
                         <ul className="space-y-1.5 text-slate-700 dark:text-slate-300 list-disc list-inside">
                           {b.cons.slice(0, 3).map((con, idx) => (
-                            <li key={idx} className="leading-relaxed"><span className="text-rose-600 dark:text-rose-400 font-medium">{con}</span></li>
+                            <li key={idx} className="leading-relaxed">
+                              <span className="text-rose-600 dark:text-rose-400 font-medium">{con}</span>
+                            </li>
                           ))}
                         </ul>
                       </td>
@@ -547,6 +535,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-cons-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 vertical-align-top">Expert Verdict</td>
                     {selectedBrokers.map(b => (
@@ -558,6 +547,7 @@ export const CompareMatrix: React.FC<CompareMatrixProps> = ({
                       <td key={`empty-verdict-${i}`} className="p-4 border-l border-slate-100 dark:border-slate-800/60" />
                     ))}
                   </tr>
+
                   <tr className="border-b border-slate-100 dark:border-slate-800/60">
                     <td className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 vertical-align-top">Account Opening</td>
                     {selectedBrokers.map(b => (
