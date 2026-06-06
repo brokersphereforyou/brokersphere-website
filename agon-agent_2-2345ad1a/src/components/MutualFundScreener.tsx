@@ -1,21 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 
-type Scheme = {
-  schemeCode: number;
-  schemeName: string;
-};
-
-type NavPoint = {
-  date: string;
-  nav: string;
-};
+type Scheme = { schemeCode: number; schemeName: string };
+type NavPoint = { date: string; nav: string };
 
 type FundDetails = {
   meta: {
     fund_house?: string;
-    scheme_type?: string;
     scheme_category?: string;
-    scheme_code?: number;
     scheme_name?: string;
   };
   data: NavPoint[];
@@ -28,22 +19,14 @@ type FundRow = {
   category: string;
   risk: string;
   latestNav: number;
-  latestDate: Date | null;
-  oneMonthReturn: number | null;
-  sixMonthReturn: number | null;
   oneYearReturn: number | null;
-  threeYearReturn: number | null;
-  fiveYearReturn: number | null;
-  expenseRatio: string;
-  aum: string;
-  minSip: string;
-  exitLoad: string;
+  threeYearCagr: number | null;
+  fiveYearCagr: number | null;
   bestFor: string;
 };
 
 const categoryTabs = [
   'Top Funds',
-  'Best SIP',
   'Large Cap',
   'Mid Cap',
   'Small Cap',
@@ -55,25 +38,16 @@ const categoryTabs = [
   'Gold'
 ];
 
-const tabKeywords: Record<string, string[]> = {
-  'Top Funds': [
-    'flexi cap',
-    'large cap',
-    'mid cap',
-    'small cap',
-    'index',
-    'elss',
-    'balanced advantage'
-  ],
-  'Best SIP': ['flexi cap', 'large cap', 'mid cap', 'index', 'balanced advantage'],
+const keywords: Record<string, string[]> = {
+  'Top Funds': ['large cap', 'mid cap', 'small cap', 'flexi cap', 'index', 'elss'],
   'Large Cap': ['large cap'],
   'Mid Cap': ['mid cap'],
   'Small Cap': ['small cap'],
   'Flexi Cap': ['flexi cap'],
   ELSS: ['elss', 'tax saver'],
   Index: ['index', 'nifty', 'sensex'],
-  Debt: ['liquid', 'short duration', 'corporate bond', 'gilt'],
-  Hybrid: ['hybrid', 'balanced advantage', 'aggressive hybrid'],
+  Debt: ['liquid', 'debt', 'bond', 'gilt'],
+  Hybrid: ['hybrid', 'balanced advantage'],
   Gold: ['gold']
 };
 
@@ -83,176 +57,129 @@ const blockedWords = [
   'dividend',
   'bonus',
   'reinvestment',
-  'quarterly',
-  'half yearly',
   'weekly',
   'monthly',
+  'quarterly',
+  'half yearly',
   'plan i',
   'plan- i',
   'institutional',
   'super saver',
-  'income fund-gssif',
-  'year plus'
+  'year plus',
+  'income fund-gssif'
 ];
 
 export default function MutualFundScreener() {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [fundRows, setFundRows] = useState<FundRow[]>([]);
   const [activeCategory, setActiveCategory] = useState('Top Funds');
-  const [riskFilter, setRiskFilter] = useState('All');
-  const [sortBy, setSortBy] = useState('threeYearReturn');
+  const [sortBy, setSortBy] = useState('threeYearCagr');
   const [search, setSearch] = useState('');
-  const [expandedFund, setExpandedFund] = useState<number | null>(null);
   const [loadingSchemes, setLoadingSchemes] = useState(true);
   const [loadingFunds, setLoadingFunds] = useState(false);
   const [error, setError] = useState('');
 
-  const formatPercent = (value: number | null) => {
-    if (value === null || Number.isNaN(value)) return 'Not available';
-    return `${value.toFixed(2)}%`;
-  };
-
-  const formatNav = (value: number) => {
-    if (!value || Number.isNaN(value)) return 'Not available';
-    return `₹${value.toFixed(2)}`;
-  };
-
-  const parseNavDate = (dateText: string): Date | null => {
-    if (!dateText) return null;
-
+  const parseDate = (dateText: string) => {
     const parts = dateText.split('-');
     if (parts.length !== 3) return null;
-
     const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
     return Number.isNaN(date.getTime()) ? null : date;
   };
 
-  const isRecentNav = (date: Date | null) => {
-    if (!date) return false;
-
-    const now = new Date();
-    const diffDays = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    return diffDays >= 0 && diffDays <= 45;
+  const formatPercent = (value: number | null) => {
+    if (value === null || Number.isNaN(value)) return 'N/A';
+    return `${value.toFixed(2)}%`;
   };
 
-  const sortNavDataLatestFirst = (data: NavPoint[]) => {
+  const formatNav = (value: number) => {
+    if (!value || Number.isNaN(value)) return 'N/A';
+    return `₹${value.toFixed(2)}`;
+  };
+
+  const sortLatestFirst = (data: NavPoint[]) => {
     return [...data].sort((a, b) => {
-      const dateA = parseNavDate(a.date)?.getTime() || 0;
-      const dateB = parseNavDate(b.date)?.getTime() || 0;
-      return dateB - dateA;
+      const aTime = parseDate(a.date)?.getTime() || 0;
+      const bTime = parseDate(b.date)?.getTime() || 0;
+      return bTime - aTime;
     });
   };
 
-  const calculateReturn = (sortedData: NavPoint[], daysBack: number) => {
-    if (!sortedData || sortedData.length < 2) return null;
+  const isRecent = (date: Date | null) => {
+    if (!date) return false;
+    const diffDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays >= 0 && diffDays <= 45;
+  };
 
-    const latest = sortedData[0];
+  const calculateReturn = (data: NavPoint[], daysBack: number, annualized = false) => {
+    if (!data.length) return null;
+
+    const latest = data[0];
+    const latestDate = parseDate(latest.date);
     const latestNav = Number(latest.nav);
-    const latestDate = parseNavDate(latest.date);
 
-    if (!latestDate || !latestNav || Number.isNaN(latestNav)) return null;
+    if (!latestDate || !latestNav) return null;
 
     const targetDate = new Date(latestDate);
     targetDate.setDate(targetDate.getDate() - daysBack);
 
-    const olderPoint = sortedData.find((point) => {
-      const pointDate = parseNavDate(point.date);
+    const oldPoint = data.find((point) => {
+      const pointDate = parseDate(point.date);
       return pointDate ? pointDate <= targetDate : false;
     });
 
-    if (!olderPoint) return null;
+    if (!oldPoint) return null;
 
-    const olderNav = Number(olderPoint.nav);
-    if (!olderNav || Number.isNaN(olderNav)) return null;
+    const oldNav = Number(oldPoint.nav);
+    if (!oldNav) return null;
 
-    return ((latestNav - olderNav) / olderNav) * 100;
+    if (annualized) {
+      return (Math.pow(latestNav / oldNav, 365 / daysBack) - 1) * 100;
+    }
+
+    return ((latestNav - oldNav) / oldNav) * 100;
   };
 
-  const inferCategory = (name: string, apiCategory?: string) => {
+  const getCategory = (name: string, apiCategory?: string) => {
     const text = `${name} ${apiCategory || ''}`.toLowerCase();
 
     if (text.includes('small cap')) return 'Small Cap';
     if (text.includes('mid cap')) return 'Mid Cap';
     if (text.includes('large cap')) return 'Large Cap';
     if (text.includes('flexi cap')) return 'Flexi Cap';
-    if (text.includes('multi cap')) return 'Multi Cap';
     if (text.includes('elss') || text.includes('tax saver')) return 'ELSS';
     if (text.includes('index') || text.includes('nifty') || text.includes('sensex')) return 'Index';
     if (text.includes('gold')) return 'Gold';
-    if (text.includes('liquid')) return 'Debt';
-    if (text.includes('debt') || text.includes('gilt') || text.includes('bond')) return 'Debt';
-    if (text.includes('hybrid') || text.includes('balanced advantage') || text.includes('balanced')) return 'Hybrid';
-    if (text.includes('contra')) return 'Contra';
+    if (text.includes('liquid') || text.includes('debt') || text.includes('bond') || text.includes('gilt')) return 'Debt';
+    if (text.includes('hybrid') || text.includes('balanced')) return 'Hybrid';
 
     return 'Other';
   };
 
-  const inferRisk = (category: string) => {
+  const getRisk = (category: string) => {
     if (category === 'Debt') return 'Low to Moderate';
     if (category === 'Hybrid' || category === 'Gold') return 'Moderate';
     if (category === 'Large Cap' || category === 'Index') return 'High';
     return 'Very High';
   };
 
-  const inferBestFor = (category: string) => {
+  const getBestFor = (category: string) => {
     if (category === 'Small Cap') return 'Aggressive long-term investors';
     if (category === 'Mid Cap') return 'High-growth investors';
     if (category === 'Large Cap') return 'Stable equity investors';
     if (category === 'Flexi Cap') return 'Diversified equity investors';
     if (category === 'ELSS') return 'Tax saving under 80C';
     if (category === 'Index') return 'Low-cost passive investing';
-    if (category === 'Debt') return 'Lower volatility / short-term parking';
-    if (category === 'Hybrid') return 'Balanced risk investors';
+    if (category === 'Debt') return 'Low volatility / short-term parking';
+    if (category === 'Hybrid') return 'Balanced investors';
     if (category === 'Gold') return 'Portfolio hedge';
     return 'General investors';
   };
 
-  const inferManualFields = (category: string) => {
-    if (category === 'Index') {
-      return {
-        expenseRatio: 'Usually Low',
-        aum: 'Check AMC / factsheet',
-        minSip: '₹100+',
-        exitLoad: 'Check scheme document'
-      };
-    }
-
-    if (category === 'Debt') {
-      return {
-        expenseRatio: 'Low to Moderate',
-        aum: 'Check AMC / factsheet',
-        minSip: '₹100+',
-        exitLoad: 'Usually low / nil'
-      };
-    }
-
-    if (category === 'ELSS') {
-      return {
-        expenseRatio: 'Check factsheet',
-        aum: 'Check AMC / factsheet',
-        minSip: '₹500+',
-        exitLoad: '3-year lock-in'
-      };
-    }
-
-    return {
-      expenseRatio: 'Check factsheet',
-      aum: 'Check AMC / factsheet',
-      minSip: '₹100+',
-      exitLoad: 'Check scheme document'
-    };
-  };
-
-  const isUsefulScheme = (schemeName: string) => {
-    const name = schemeName.toLowerCase();
-
-    if (!name.includes('direct')) return false;
-    if (!name.includes('growth')) return false;
-
-    return !blockedWords.some((word) => name.includes(word));
+  const isUsefulScheme = (name: string) => {
+    const text = name.toLowerCase();
+    if (!text.includes('direct')) return false;
+    if (!text.includes('growth')) return false;
+    return !blockedWords.some((word) => text.includes(word));
   };
 
   useEffect(() => {
@@ -261,16 +188,21 @@ export default function MutualFundScreener() {
         setLoadingSchemes(true);
         setError('');
 
-        const response = await fetch('https://api.mfapi.in/mf');
-
-        if (!response.ok) {
-          throw new Error('Unable to fetch scheme list');
+        const cached = sessionStorage.getItem('bs-mf-schemes');
+        if (cached) {
+          setSchemes(JSON.parse(cached));
+          setLoadingSchemes(false);
+          return;
         }
 
+        const response = await fetch('https://api.mfapi.in/mf');
+        if (!response.ok) throw new Error('Unable to fetch schemes');
+
         const data: Scheme[] = await response.json();
+        sessionStorage.setItem('bs-mf-schemes', JSON.stringify(data));
         setSchemes(data);
-      } catch (err) {
-        setError('Unable to load mutual fund list right now. Please try again later.');
+      } catch {
+        setError('Unable to load mutual fund list. Please try again later.');
       } finally {
         setLoadingSchemes(false);
       }
@@ -281,123 +213,103 @@ export default function MutualFundScreener() {
 
   const selectedSchemes = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const keywords = tabKeywords[activeCategory] || [];
+    const tabWords = keywords[activeCategory] || [];
 
-    let filtered = schemes.filter((scheme) => isUsefulScheme(scheme.schemeName));
+    let result = schemes.filter((scheme) => isUsefulScheme(scheme.schemeName));
 
     if (query) {
-      filtered = filtered.filter((scheme) =>
+      result = result.filter((scheme) =>
         scheme.schemeName.toLowerCase().includes(query)
       );
     } else {
-      filtered = filtered.filter((scheme) => {
+      result = result.filter((scheme) => {
         const name = scheme.schemeName.toLowerCase();
-        return keywords.some((keyword) => name.includes(keyword));
+        return tabWords.some((word) => name.includes(word));
       });
     }
 
     const unique = new Map<string, Scheme>();
 
-    filtered.forEach((scheme) => {
-      const normalizedName = scheme.schemeName
+    result.forEach((scheme) => {
+      const cleanName = scheme.schemeName
         .toLowerCase()
-        .replace(/\s+/g, ' ')
         .replace(/direct/g, '')
         .replace(/growth/g, '')
+        .replace(/option/g, '')
+        .replace(/\s+/g, ' ')
         .trim();
 
-      if (!unique.has(normalizedName)) {
-        unique.set(normalizedName, scheme);
-      }
+      if (!unique.has(cleanName)) unique.set(cleanName, scheme);
     });
 
-    return Array.from(unique.values()).slice(0, 35);
+    return Array.from(unique.values()).slice(0, 15);
   }, [schemes, activeCategory, search]);
 
   const loadFunds = async () => {
     try {
       setLoadingFunds(true);
       setError('');
-      setExpandedFund(null);
 
       const rows = await Promise.all(
         selectedSchemes.map(async (scheme) => {
           const response = await fetch(`https://api.mfapi.in/mf/${scheme.schemeCode}`);
-
           if (!response.ok) return null;
 
           const details: FundDetails = await response.json();
-
-          const sortedData = sortNavDataLatestFirst(details.data || []);
+          const sortedData = sortLatestFirst(details.data || []);
           const latest = sortedData[0];
 
           if (!latest) return null;
 
-          const latestDate = parseNavDate(latest.date);
-          const latestNav = Number(latest.nav || 0);
+          const latestDate = parseDate(latest.date);
+          if (!isRecent(latestDate)) return null;
+
+          const latestNav = Number(latest.nav);
           const schemeName = details.meta?.scheme_name || scheme.schemeName;
-
-          if (!isRecentNav(latestDate)) return null;
-
-          const category = inferCategory(schemeName, details.meta?.scheme_category);
+          const category = getCategory(schemeName, details.meta?.scheme_category);
 
           if (category === 'Other') return null;
 
-          const oneYearReturn = calculateReturn(sortedData, 365);
-          const threeYearReturn = calculateReturn(sortedData, 1095);
+          const oneYearReturn = calculateReturn(sortedData, 365, false);
+          const threeYearCagr = calculateReturn(sortedData, 1095, true);
+          const fiveYearCagr = calculateReturn(sortedData, 1825, true);
 
-          if (oneYearReturn === null && threeYearReturn === null) return null;
-
-          const manual = inferManualFields(category);
+          if (oneYearReturn === null && threeYearCagr === null) return null;
 
           return {
             schemeCode: scheme.schemeCode,
             schemeName,
             fundHouse: details.meta?.fund_house || 'N/A',
             category,
-            risk: inferRisk(category),
+            risk: getRisk(category),
             latestNav,
-            latestDate,
-            oneMonthReturn: calculateReturn(sortedData, 30),
-            sixMonthReturn: calculateReturn(sortedData, 180),
             oneYearReturn,
-            threeYearReturn,
-            fiveYearReturn: calculateReturn(sortedData, 1825),
-            expenseRatio: manual.expenseRatio,
-            aum: manual.aum,
-            minSip: manual.minSip,
-            exitLoad: manual.exitLoad,
-            bestFor: inferBestFor(category)
+            threeYearCagr,
+            fiveYearCagr,
+            bestFor: getBestFor(category)
           };
         })
       );
 
-      const cleanRows = (rows.filter(Boolean) as FundRow[]).sort((a, b) => {
-        const aValue = a.threeYearReturn ?? a.oneYearReturn ?? 0;
-        const bValue = b.threeYearReturn ?? b.oneYearReturn ?? 0;
-        return bValue - aValue;
+      const cleanRows = (rows.filter(Boolean) as FundRow[]).filter((fund) => {
+        const value = fund.threeYearCagr ?? fund.oneYearReturn ?? 0;
+        return value > -50 && value < 80;
       });
 
-      setFundRows(cleanRows.slice(0, 18));
-    } catch (err) {
-      setError('Unable to fetch fund details right now. Please try again later.');
+      setFundRows(cleanRows);
+    } catch {
+      setError('Unable to fetch fund returns right now. Please try again later.');
     } finally {
       setLoadingFunds(false);
     }
   };
 
   useEffect(() => {
-    if (schemes.length > 0) {
-      loadFunds();
-    }
+    if (schemes.length > 0) loadFunds();
   }, [schemes, activeCategory]);
 
   const filteredRows = useMemo(() => {
-    let result = [...fundRows];
-
-    if (riskFilter !== 'All') {
-      result = result.filter((fund) => fund.risk === riskFilter);
-    }
+    const result = [...fundRows];
 
     result.sort((a, b) => {
       const aValue = a[sortBy as keyof FundRow];
@@ -411,9 +323,7 @@ export default function MutualFundScreener() {
     });
 
     return result;
-  }, [fundRows, riskFilter, sortBy]);
-
-  const topThree = filteredRows.slice(0, 3);
+  }, [fundRows, sortBy]);
 
   return (
     <section className="py-16 px-4 bg-slate-50 text-slate-900">
@@ -423,7 +333,7 @@ export default function MutualFundScreener() {
             Mutual Fund Screener
           </h2>
           <p className="text-slate-600 max-w-3xl mx-auto">
-            Discover Indian mutual funds by category, risk, investment style and NAV-based returns.
+            Discover Indian mutual funds by category and compare NAV-based returns.
           </p>
         </div>
 
@@ -447,7 +357,7 @@ export default function MutualFundScreener() {
             ))}
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-4 mt-5">
+          <div className="grid lg:grid-cols-3 gap-4 mt-5">
             <div className="lg:col-span-2">
               <label className="block text-sm font-bold mb-2">
                 Optional Search
@@ -456,27 +366,12 @@ export default function MutualFundScreener() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Example: HDFC, SBI, ICICI, Parag Parikh..."
+                placeholder="Example: HDFC, SBI, ICICI, Parag Parikh"
                 className="w-full p-3 rounded-xl border border-slate-300 bg-white text-slate-900"
               />
               <p className="text-xs text-slate-500 mt-2">
                 Leave blank and use category tabs if you do not know the fund name.
               </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold mb-2">Risk Level</label>
-              <select
-                value={riskFilter}
-                onChange={(e) => setRiskFilter(e.target.value)}
-                className="w-full p-3 rounded-xl border border-slate-300 bg-white text-slate-900"
-              >
-                <option value="All">All Risk Levels</option>
-                <option value="Low to Moderate">Low to Moderate</option>
-                <option value="Moderate">Moderate</option>
-                <option value="High">High</option>
-                <option value="Very High">Very High</option>
-              </select>
             </div>
 
             <div>
@@ -486,18 +381,16 @@ export default function MutualFundScreener() {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full p-3 rounded-xl border border-slate-300 bg-white text-slate-900"
               >
-                <option value="threeYearReturn">Best 3Y Return</option>
-                <option value="fiveYearReturn">Best 5Y Return</option>
+                <option value="threeYearCagr">Best 3Y CAGR</option>
+                <option value="fiveYearCagr">Best 5Y CAGR</option>
                 <option value="oneYearReturn">Best 1Y Return</option>
-                <option value="sixMonthReturn">Best 6M Return</option>
-                <option value="oneMonthReturn">Best 1M Return</option>
               </select>
             </div>
           </div>
 
           <div className="mt-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <p className="text-xs text-slate-500">
-              Old inactive schemes and stale NAV records are automatically removed.
+              3Y and 5Y returns are shown as annualized CAGR, not total absolute return.
             </p>
 
             <button
@@ -516,148 +409,61 @@ export default function MutualFundScreener() {
           </div>
         )}
 
-        {topThree.length > 0 && (
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            {topThree.map((fund, index) => (
-              <div key={fund.schemeCode} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-                <div className="text-xs font-bold text-emerald-700 mb-2">
-                  #{index + 1} in current filter
-                </div>
-                <h3 className="font-extrabold text-slate-900 mb-2 line-clamp-2">
-                  {fund.schemeName}
-                </h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  {fund.category} • {fund.risk}
-                </p>
-                <div className="flex justify-between text-sm">
-                  <span>3Y Return</span>
-                  <strong className="text-emerald-700">
-                    {formatPercent(fund.threeYearReturn)}
-                  </strong>
-                </div>
-                <div className="flex justify-between text-sm mt-1">
-                  <span>Latest NAV</span>
-                  <strong>{formatNav(fund.latestNav)}</strong>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
         {loadingSchemes || loadingFunds ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
-            <p className="font-bold text-slate-700">Loading mutual fund data...</p>
+            <p className="font-bold text-slate-700">
+              Loading mutual fund data...
+            </p>
           </div>
         ) : (
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[980px]">
+              <table className="w-full text-left min-w-[900px]">
                 <thead className="bg-slate-100 text-slate-700 text-xs uppercase">
                   <tr>
                     <th className="p-4">Fund</th>
                     <th className="p-4">Category</th>
                     <th className="p-4">Risk</th>
                     <th className="p-4">Latest NAV</th>
-                    <th className="p-4">1Y</th>
-                    <th className="p-4">3Y</th>
-                    <th className="p-4">5Y</th>
+                    <th className="p-4">1Y Return</th>
+                    <th className="p-4">3Y CAGR</th>
+                    <th className="p-4">5Y CAGR</th>
                     <th className="p-4">Best For</th>
-                    <th className="p-4">Details</th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
                   {filteredRows.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="p-6 text-center text-slate-500">
-                        No suitable active funds found for this filter. Try another category.
+                      <td colSpan={8} className="p-6 text-center text-slate-500">
+                        No suitable active funds found. Try another category.
                       </td>
                     </tr>
                   ) : (
                     filteredRows.map((fund) => (
-                      <>
-                        <tr key={fund.schemeCode} className="hover:bg-slate-50">
-                          <td className="p-4">
-                            <div className="font-bold text-slate-900 max-w-[320px]">
-                              {fund.schemeName}
-                            </div>
-                            <div className="text-xs text-slate-500 mt-1">
-                              {fund.fundHouse}
-                            </div>
-                          </td>
+                      <tr key={fund.schemeCode} className="hover:bg-slate-50">
+                        <td className="p-4">
+                          <div className="font-bold text-slate-900 max-w-[340px]">
+                            {fund.schemeName}
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            {fund.fundHouse}
+                          </div>
+                        </td>
 
-                          <td className="p-4">
-                            <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold">
-                              {fund.category}
-                            </span>
-                          </td>
+                        <td className="p-4">
+                          <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold">
+                            {fund.category}
+                          </span>
+                        </td>
 
-                          <td className="p-4 text-sm font-semibold">{fund.risk}</td>
-
-                          <td className="p-4 font-bold">{formatNav(fund.latestNav)}</td>
-
-                          <td className="p-4 font-semibold">{formatPercent(fund.oneYearReturn)}</td>
-                          <td className="p-4 font-bold text-emerald-700">{formatPercent(fund.threeYearReturn)}</td>
-                          <td className="p-4 font-bold text-emerald-700">{formatPercent(fund.fiveYearReturn)}</td>
-
-                          <td className="p-4 text-sm text-slate-700 max-w-[180px]">
-                            {fund.bestFor}
-                          </td>
-
-                          <td className="p-4">
-                            <button
-                              onClick={() =>
-                                setExpandedFund(
-                                  expandedFund === fund.schemeCode ? null : fund.schemeCode
-                                )
-                              }
-                              className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold"
-                            >
-                              {expandedFund === fund.schemeCode ? 'Hide' : 'View'}
-                            </button>
-                          </td>
-                        </tr>
-
-                        {expandedFund === fund.schemeCode && (
-                          <tr>
-                            <td colSpan={9} className="p-5 bg-slate-50">
-                              <div className="grid md:grid-cols-4 gap-4">
-                                <div className="bg-white border border-slate-200 rounded-xl p-4">
-                                  <h4 className="font-bold mb-3">NAV Details</h4>
-                                  <p className="text-sm mb-2">
-                                    <strong>Latest NAV:</strong> {formatNav(fund.latestNav)}
-                                  </p>
-                                  <p className="text-sm text-slate-500">
-                                    NAV date is hidden in the table to avoid confusion. Only recent active NAV records are shown.
-                                  </p>
-                                </div>
-
-                                <div className="bg-white border border-slate-200 rounded-xl p-4">
-                                  <h4 className="font-bold mb-3">Cost Details</h4>
-                                  <p className="text-sm mb-2"><strong>Expense Ratio:</strong> {fund.expenseRatio}</p>
-                                  <p className="text-sm mb-2"><strong>AUM:</strong> {fund.aum}</p>
-                                  <p className="text-sm"><strong>Exit Load:</strong> {fund.exitLoad}</p>
-                                </div>
-
-                                <div className="bg-white border border-slate-200 rounded-xl p-4">
-                                  <h4 className="font-bold mb-3">Investment Details</h4>
-                                  <p className="text-sm mb-2"><strong>Min SIP:</strong> {fund.minSip}</p>
-                                  <p className="text-sm mb-2"><strong>Risk:</strong> {fund.risk}</p>
-                                  <p className="text-sm"><strong>Best For:</strong> {fund.bestFor}</p>
-                                </div>
-
-                                <div className="bg-white border border-slate-200 rounded-xl p-4">
-                                  <h4 className="font-bold mb-3">Returns</h4>
-                                  <p className="text-sm mb-2"><strong>1M:</strong> {formatPercent(fund.oneMonthReturn)}</p>
-                                  <p className="text-sm mb-2"><strong>6M:</strong> {formatPercent(fund.sixMonthReturn)}</p>
-                                  <p className="text-sm mb-2"><strong>1Y:</strong> {formatPercent(fund.oneYearReturn)}</p>
-                                  <p className="text-sm"><strong>3Y:</strong> {formatPercent(fund.threeYearReturn)}</p>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </>
+                        <td className="p-4 text-sm font-semibold">{fund.risk}</td>
+                        <td className="p-4 font-bold">{formatNav(fund.latestNav)}</td>
+                        <td className="p-4 font-semibold">{formatPercent(fund.oneYearReturn)}</td>
+                        <td className="p-4 font-bold text-emerald-700">{formatPercent(fund.threeYearCagr)}</td>
+                        <td className="p-4 font-bold text-emerald-700">{formatPercent(fund.fiveYearCagr)}</td>
+                        <td className="p-4 text-sm text-slate-700">{fund.bestFor}</td>
+                      </tr>
                     ))
                   )}
                 </tbody>
@@ -667,15 +473,10 @@ export default function MutualFundScreener() {
         )}
 
         <div className="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 text-sm text-amber-900 leading-relaxed">
-          <strong>Important:</strong> NAV and return calculations are based on MFAPI NAV history.
-          Old inactive schemes, stale NAV records and funds without enough return history are filtered out.
-          Expense ratio, AUM, exit load, fund manager, holdings and sector allocation are not available from this free NAV API.
-          For a fully professional screener with live factsheet data, use a paid data API or monthly AMC factsheet update system.
+          <strong>Important:</strong> NAV data is fetched from MFAPI. 3Y and 5Y returns are calculated as CAGR.
+          Expense ratio, AUM, holdings, sector allocation and fund manager details are not available from this free NAV API.
+          For those fields, you need a professional mutual fund data API or AMC factsheet database.
         </div>
-
-        <p className="text-xs text-slate-500 mt-5 leading-relaxed">
-          Disclaimer: This tool is for educational purposes only. Returns are calculated from available NAV history and may differ from official AMC returns due to date availability and calculation method. Please verify scheme documents, riskometer, expense ratio, exit load and factsheet before investing.
-        </p>
       </div>
     </section>
   );
