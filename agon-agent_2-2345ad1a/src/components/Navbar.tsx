@@ -7,7 +7,8 @@ import {
   Layers,
   GraduationCap,
   PiggyBank,
-  TrendingUp
+  TrendingUp,
+  Bitcoin
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -20,6 +21,7 @@ interface NavbarProps {
     | 'emi'
     | 'fd'
     | 'incometax'
+    | 'crypto'
     | 'mutualfund'
     | 'glossary'
     | 'blogs';
@@ -33,6 +35,7 @@ interface NavbarProps {
       | 'emi'
       | 'fd'
       | 'incometax'
+      | 'crypto'
       | 'mutualfund'
       | 'glossary'
       | 'blogs'
@@ -52,12 +55,43 @@ export const Navbar: React.FC<NavbarProps> = ({
     localStorage.setItem('theme', 'light');
   }, []);
 
-  const handleClick = (tab: any) => {
+  const handleClick = (
+    tab:
+      | 'brokers'
+      | 'compare'
+      | 'finder'
+      | 'calculator'
+      | 'investment'
+      | 'emi'
+      | 'fd'
+      | 'incometax'
+      | 'crypto'
+      | 'mutualfund'
+      | 'glossary'
+      | 'blogs'
+  ) => {
     onBackToBrokers();
     setActiveTab(tab);
   };
 
-  const desktopLinks = [
+  const desktopLinks: {
+    id:
+      | 'brokers'
+      | 'compare'
+      | 'calculator'
+      | 'investment'
+      | 'emi'
+      | 'fd'
+      | 'incometax'
+      | 'crypto'
+      | 'mutualfund'
+      | 'finder'
+      | 'blogs'
+      | 'glossary';
+    label: string;
+    icon: React.ElementType;
+    badge?: number;
+  }[] = [
     { id: 'brokers', label: 'Directory', icon: Layers },
     {
       id: 'compare',
@@ -70,6 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'emi', label: 'EMI', icon: Calculator },
     { id: 'fd', label: 'FD', icon: Calculator },
     { id: 'incometax', label: 'Tax', icon: Calculator },
+    { id: 'crypto', label: 'Crypto', icon: Bitcoin },
     { id: 'mutualfund', label: 'Mutual Funds', icon: TrendingUp },
     { id: 'finder', label: 'Quiz', icon: Sparkles },
     { id: 'blogs', label: 'Blogs', icon: BookOpen },
