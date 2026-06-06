@@ -132,7 +132,7 @@ textarea {
   -webkit-text-fill-color: var(--bs-text) !important;
 }
 
-/* IMPORTANT: Dropdown fix */
+/* Dropdown fix */
 select {
   background-color: var(--bs-select-bg) !important;
   color: var(--bs-select-text) !important;
@@ -217,6 +217,64 @@ a {
 
 .freeze-first-col td[colspan]:first-child::after {
   display: none !important;
+}
+
+/* Range slider visibility fix */
+input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 999px;
+  background: #dbeafe !important;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Chrome / Edge / Safari track */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #dbeafe !important;
+}
+
+/* Chrome / Edge / Safari thumb */
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--bs-green) !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 157, 117, 0.35);
+}
+
+/* Firefox track */
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #dbeafe !important;
+}
+
+/* Firefox progress */
+input[type="range"]::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bs-green) !important;
+}
+
+/* Firefox thumb */
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bs-green) !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 157, 117, 0.35);
 }
 
 @media (max-width: 768px) {
