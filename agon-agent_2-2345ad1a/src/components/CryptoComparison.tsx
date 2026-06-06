@@ -1,189 +1,176 @@
 import { useMemo, useState } from 'react';
-import { Search, ShieldCheck, Globe2, AlertTriangle } from 'lucide-react';
+import { Search, ShieldCheck, Globe2, AlertTriangle, ExternalLink } from 'lucide-react';
 
 type CryptoPlatform = {
   name: string;
   type: 'Indian' | 'Global';
-  status: 'Active in India' | 'Global Access' | 'Check Before Use';
   tradingFee: string;
   coins: string;
   inrSupport: string;
-  futures: string;
+  optionsAndFutures: string;
   staking: string;
   cryptoSip: string;
   bestFor: string;
   rating: number;
-  riskNote: string;
+  accountUrl: string;
 };
 
 const cryptoPlatforms: CryptoPlatform[] = [
   {
     name: 'CoinDCX',
     type: 'Indian',
-    status: 'Active in India',
     tradingFee: 'Low to Medium',
     coins: '500+',
     inrSupport: 'Yes',
-    futures: 'Yes',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'Yes',
     bestFor: 'Indian beginners and active traders',
     rating: 4.5,
-    riskNote: 'Indian platform; verify latest fees and TDS rules.'
+    accountUrl: 'https://coindcx.com/'
   },
   {
     name: 'CoinSwitch',
     type: 'Indian',
-    status: 'Active in India',
     tradingFee: 'Spread based',
-    coins: '250+',
+    coins: '400+',
     inrSupport: 'Yes',
-    futures: 'Limited / Check',
+    optionsAndFutures: 'Limited / Check',
     staking: 'Limited',
     cryptoSip: 'Yes',
     bestFor: 'Simple crypto investing',
     rating: 4.3,
-    riskNote: 'Good for beginners; check spread before buying.'
+    accountUrl: 'https://coinswitch.co/'
   },
   {
     name: 'Mudrex',
     type: 'Indian',
-    status: 'Active in India',
     tradingFee: 'Low to Medium',
-    coins: '350+',
+    coins: '650+',
     inrSupport: 'Yes',
-    futures: 'Check',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'Yes',
     bestFor: 'Crypto baskets and SIP-style investing',
     rating: 4.4,
-    riskNote: 'Check product risk before using coin baskets.'
+    accountUrl: 'https://mudrex.com/'
   },
   {
     name: 'ZebPay',
     type: 'Indian',
-    status: 'Active in India',
     tradingFee: 'Medium',
     coins: '150+',
     inrSupport: 'Yes',
-    futures: 'No / Limited',
+    optionsAndFutures: 'No / Limited',
     staking: 'Yes',
     cryptoSip: 'No / Limited',
     bestFor: 'Long-term crypto holders',
     rating: 4.0,
-    riskNote: 'Older Indian exchange; verify current fee structure.'
+    accountUrl: 'https://zebpay.com/'
   },
   {
     name: 'Unocoin',
     type: 'Indian',
-    status: 'Active in India',
     tradingFee: 'Medium',
     coins: 'Limited',
     inrSupport: 'Yes',
-    futures: 'No',
+    optionsAndFutures: 'No',
     staking: 'No / Limited',
     cryptoSip: 'Yes',
     bestFor: 'Bitcoin-focused users',
     rating: 3.8,
-    riskNote: 'Limited coins compared with larger exchanges.'
+    accountUrl: 'https://www.unocoin.com/'
   },
   {
     name: 'Giottus',
     type: 'Indian',
-    status: 'Active in India',
     tradingFee: 'Low to Medium',
     coins: '200+',
     inrSupport: 'Yes',
-    futures: 'Check',
+    optionsAndFutures: 'Check',
     staking: 'Yes',
     cryptoSip: 'Check',
     bestFor: 'Indian altcoin investors',
     rating: 4.0,
-    riskNote: 'Check liquidity before trading small coins.'
+    accountUrl: 'https://www.giottus.com/'
   },
   {
     name: 'Binance',
     type: 'Global',
-    status: 'Global Access',
     tradingFee: 'Low',
     coins: '350+',
     inrSupport: 'P2P / Check',
-    futures: 'Yes',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'Auto-invest',
     bestFor: 'Advanced global crypto traders',
     rating: 4.7,
-    riskNote: 'Global platform; Indian users should verify latest FIU/compliance and INR access.'
+    accountUrl: 'https://www.binance.com/'
   },
   {
     name: 'Coinbase',
     type: 'Global',
-    status: 'Active in India',
     tradingFee: 'Medium to High',
     coins: '200+',
-    inrSupport: 'Yes / rolling out',
-    futures: 'Limited / Check',
+    inrSupport: 'Yes / Check',
+    optionsAndFutures: 'Limited / Check',
     staking: 'Yes',
     cryptoSip: 'Recurring buy',
     bestFor: 'Users wanting a large global brand',
     rating: 4.4,
-    riskNote: 'Verify Indian INR deposit/withdrawal availability before use.'
+    accountUrl: 'https://www.coinbase.com/'
   },
   {
     name: 'KuCoin',
     type: 'Global',
-    status: 'Global Access',
     tradingFee: 'Low',
     coins: '700+',
     inrSupport: 'P2P / Check',
-    futures: 'Yes',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'Trading bot / recurring features',
     bestFor: 'Altcoin and global market users',
     rating: 4.3,
-    riskNote: 'Global platform; verify latest India access and compliance.'
+    accountUrl: 'https://www.kucoin.com/'
   },
   {
     name: 'Bybit',
     type: 'Global',
-    status: 'Check Before Use',
     tradingFee: 'Low',
     coins: '500+',
     inrSupport: 'P2P / Check',
-    futures: 'Yes',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'Auto-invest',
-    bestFor: 'Advanced futures traders',
+    bestFor: 'Advanced derivatives traders',
     rating: 4.2,
-    riskNote: 'High-risk derivatives platform; check India availability and compliance before use.'
+    accountUrl: 'https://www.bybit.com/'
   },
   {
     name: 'OKX',
     type: 'Global',
-    status: 'Check Before Use',
     tradingFee: 'Low',
     coins: '300+',
     inrSupport: 'P2P / Check',
-    futures: 'Yes',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'Earn products',
     bestFor: 'Global crypto trading tools',
     rating: 4.1,
-    riskNote: 'Check India availability, restrictions and withdrawal support.'
+    accountUrl: 'https://www.okx.com/'
   },
   {
     name: 'Kraken',
     type: 'Global',
-    status: 'Check Before Use',
     tradingFee: 'Low to Medium',
     coins: '200+',
     inrSupport: 'No direct INR / Check',
-    futures: 'Yes',
+    optionsAndFutures: 'Yes',
     staking: 'Yes',
     cryptoSip: 'No / Limited',
     bestFor: 'Security-focused global users',
     rating: 4.2,
-    riskNote: 'May not be convenient for INR users.'
+    accountUrl: 'https://www.kraken.com/'
   }
 ];
 
@@ -226,7 +213,7 @@ export default function CryptoComparison() {
           </h2>
           <p className="text-slate-600 max-w-3xl mx-auto">
             Compare Indian and global crypto exchanges by fees, INR support, coins,
-            futures, staking, crypto SIP and suitability for Indian users.
+            Options & Futures, staking, crypto SIP and suitability for Indian users.
           </p>
         </div>
 
@@ -236,8 +223,13 @@ export default function CryptoComparison() {
               <label className="block text-sm font-bold mb-2">
                 Search Platform
               </label>
+
               <div className="relative">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
                 <input
                   type="text"
                   value={search}
@@ -252,6 +244,7 @@ export default function CryptoComparison() {
               <label className="block text-sm font-bold mb-2">
                 Platform Type
               </label>
+
               <select
                 value={platformType}
                 onChange={(e) => setPlatformType(e.target.value as any)}
@@ -267,6 +260,7 @@ export default function CryptoComparison() {
               <label className="block text-sm font-bold mb-2">
                 Sort By
               </label>
+
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
@@ -288,20 +282,34 @@ export default function CryptoComparison() {
               <div className="text-xs font-bold text-emerald-700 mb-2">
                 #{index + 1} in current filter
               </div>
+
               <h3 className="font-extrabold text-slate-900 mb-2">
                 {platform.name}
               </h3>
+
               <p className="text-sm text-slate-600 mb-3">
-                {platform.type} • {platform.status}
+                {platform.type} Platform
               </p>
+
               <div className="flex justify-between text-sm">
                 <span>Rating</span>
                 <strong className="text-emerald-700">{platform.rating}/5</strong>
               </div>
+
               <div className="flex justify-between text-sm mt-1">
                 <span>Best For</span>
                 <strong className="text-right max-w-[180px]">{platform.bestFor}</strong>
               </div>
+
+              <a
+                href={platform.accountUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl"
+              >
+                Open Account
+                <ExternalLink size={14} />
+              </a>
             </div>
           ))}
         </div>
@@ -313,15 +321,15 @@ export default function CryptoComparison() {
                 <tr>
                   <th className="p-4">Platform</th>
                   <th className="p-4">Type</th>
-                  <th className="p-4">Status</th>
                   <th className="p-4">Trading Fee</th>
                   <th className="p-4">Coins</th>
                   <th className="p-4">INR Support</th>
-                  <th className="p-4">Futures</th>
+                  <th className="p-4">Options & Futures</th>
                   <th className="p-4">Staking</th>
                   <th className="p-4">Crypto SIP</th>
                   <th className="p-4">Rating</th>
                   <th className="p-4">Best For</th>
+                  <th className="p-4">Open Account</th>
                 </tr>
               </thead>
 
@@ -331,9 +339,6 @@ export default function CryptoComparison() {
                     <td className="p-4">
                       <div className="font-bold text-slate-900">
                         {platform.name}
-                      </div>
-                      <div className="text-xs text-slate-500 mt-1">
-                        {platform.riskNote}
                       </div>
                     </td>
 
@@ -345,24 +350,35 @@ export default function CryptoComparison() {
                             : 'bg-blue-50 text-blue-700'
                         }`}
                       >
-                        {platform.type === 'Indian' ? 'Indian' : 'Global'}
+                        {platform.type}
                       </span>
                     </td>
 
-                    <td className="p-4 text-sm font-semibold">
-                      {platform.status}
-                    </td>
                     <td className="p-4 text-sm">{platform.tradingFee}</td>
                     <td className="p-4 text-sm">{platform.coins}</td>
                     <td className="p-4 text-sm">{platform.inrSupport}</td>
-                    <td className="p-4 text-sm">{platform.futures}</td>
+                    <td className="p-4 text-sm">{platform.optionsAndFutures}</td>
                     <td className="p-4 text-sm">{platform.staking}</td>
                     <td className="p-4 text-sm">{platform.cryptoSip}</td>
+
                     <td className="p-4 font-bold text-emerald-700">
                       {platform.rating}/5
                     </td>
+
                     <td className="p-4 text-sm text-slate-700 max-w-[220px]">
                       {platform.bestFor}
+                    </td>
+
+                    <td className="p-4">
+                      <a
+                        href={platform.accountUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg whitespace-nowrap"
+                      >
+                        Open
+                        <ExternalLink size={13} />
+                      </a>
                     </td>
                   </tr>
                 ))}
