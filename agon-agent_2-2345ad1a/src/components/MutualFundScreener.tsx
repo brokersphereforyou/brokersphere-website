@@ -28,7 +28,7 @@ type FundRow = {
   category: string;
   risk: string;
   latestNav: number;
-  latestDate: string;
+  latestDate: Date | null;
   oneMonthReturn: number | null;
   sixMonthReturn: number | null;
   oneYearReturn: number | null;
@@ -51,21 +51,49 @@ const categoryTabs = [
   'ELSS',
   'Index',
   'Debt',
-  'Hybrid'
+  'Hybrid',
+  'Gold'
 ];
 
-const fundKeywordMap: Record<string, string[]> = {
-  'Top Funds': ['direct growth'],
-  'Best SIP': ['direct growth', 'growth'],
-  'Large Cap': ['large cap direct growth'],
-  'Mid Cap': ['mid cap direct growth'],
-  'Small Cap': ['small cap direct growth'],
-  'Flexi Cap': ['flexi cap direct growth'],
-  ELSS: ['elss direct growth', 'tax saver direct growth'],
-  Index: ['index direct growth', 'nifty direct growth', 'sensex direct growth'],
-  Debt: ['liquid direct growth', 'debt direct growth', 'gilt direct growth'],
-  Hybrid: ['hybrid direct growth', 'balanced advantage direct growth']
+const tabKeywords: Record<string, string[]> = {
+  'Top Funds': [
+    'flexi cap',
+    'large cap',
+    'mid cap',
+    'small cap',
+    'index',
+    'elss',
+    'balanced advantage'
+  ],
+  'Best SIP': ['flexi cap', 'large cap', 'mid cap', 'index', 'balanced advantage'],
+  'Large Cap': ['large cap'],
+  'Mid Cap': ['mid cap'],
+  'Small Cap': ['small cap'],
+  'Flexi Cap': ['flexi cap'],
+  ELSS: ['elss', 'tax saver'],
+  Index: ['index', 'nifty', 'sensex'],
+  Debt: ['liquid', 'short duration', 'corporate bond', 'gilt'],
+  Hybrid: ['hybrid', 'balanced advantage', 'aggressive hybrid'],
+  Gold: ['gold']
 };
+
+const blockedWords = [
+  'regular',
+  'idcw',
+  'dividend',
+  'bonus',
+  'reinvestment',
+  'quarterly',
+  'half yearly',
+  'weekly',
+  'monthly',
+  'plan i',
+  'plan- i',
+  'institutional',
+  'super saver',
+  'income fund-gssif',
+  'year plus'
+];
 
 export default function MutualFundScreener() {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
@@ -80,47 +108,59 @@ export default function MutualFundScreener() {
   const [error, setError] = useState('');
 
   const formatPercent = (value: number | null) => {
-    if (value === null || Number.isNaN(value)) return 'N/A';
+    if (value === null || Number.isNaN(value)) return 'Not available';
     return `${value.toFixed(2)}%`;
   };
 
   const formatNav = (value: number) => {
-    if (!value || Number.isNaN(value)) return 'N/A';
+    if (!value || Number.isNaN(value)) return 'Not available';
     return `₹${value.toFixed(2)}`;
   };
 
-  const formatDate = (value: string) => {
-    if (!value || value === 'N/A') return 'N/A';
+  const parseNavDate = (dateText: string): Date | null => {
+    if (!dateText) return null;
 
-    const parts = value.split('-');
-    if (parts.length !== 3) return value;
+    const parts = dateText.split('-');
+    if (parts.length !== 3) return null;
 
     const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
 
-    if (Number.isNaN(date.getTime())) return value;
+  const isRecentNav = (date: Date | null) => {
+    if (!date) return false;
 
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    const now = new Date();
+    const diffDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    return diffDays >= 0 && diffDays <= 45;
+  };
+
+  const sortNavDataLatestFirst = (data: NavPoint[]) => {
+    return [...data].sort((a, b) => {
+      const dateA = parseNavDate(a.date)?.getTime() || 0;
+      const dateB = parseNavDate(b.date)?.getTime() || 0;
+      return dateB - dateA;
     });
   };
 
-  const calculateReturn = (data: NavPoint[], daysBack: number) => {
-    if (!data || data.length < 2) return null;
+  const calculateReturn = (sortedData: NavPoint[], daysBack: number) => {
+    if (!sortedData || sortedData.length < 2) return null;
 
-    const latest = data[0];
+    const latest = sortedData[0];
     const latestNav = Number(latest.nav);
+    const latestDate = parseNavDate(latest.date);
 
-    if (!latestNav || Number.isNaN(latestNav)) return null;
+    if (!latestDate || !latestNav || Number.isNaN(latestNav)) return null;
 
-    const latestDate = new Date(latest.date.split('-').reverse().join('-'));
     const targetDate = new Date(latestDate);
     targetDate.setDate(targetDate.getDate() - daysBack);
 
-    const olderPoint = data.find((point) => {
-      const pointDate = new Date(point.date.split('-').reverse().join('-'));
-      return pointDate <= targetDate;
+    const olderPoint = sortedData.find((point) => {
+      const pointDate = parseNavDate(point.date);
+      return pointDate ? pointDate <= targetDate : false;
     });
 
     if (!olderPoint) return null;
@@ -141,19 +181,19 @@ export default function MutualFundScreener() {
     if (text.includes('multi cap')) return 'Multi Cap';
     if (text.includes('elss') || text.includes('tax saver')) return 'ELSS';
     if (text.includes('index') || text.includes('nifty') || text.includes('sensex')) return 'Index';
-    if (text.includes('liquid')) return 'Liquid';
+    if (text.includes('gold')) return 'Gold';
+    if (text.includes('liquid')) return 'Debt';
     if (text.includes('debt') || text.includes('gilt') || text.includes('bond')) return 'Debt';
     if (text.includes('hybrid') || text.includes('balanced advantage') || text.includes('balanced')) return 'Hybrid';
-    if (text.includes('gold')) return 'Gold';
     if (text.includes('contra')) return 'Contra';
 
-    return apiCategory || 'Other';
+    return 'Other';
   };
 
   const inferRisk = (category: string) => {
-    if (['Debt', 'Liquid'].includes(category)) return 'Low to Moderate';
-    if (['Hybrid', 'Gold'].includes(category)) return 'Moderate';
-    if (['Large Cap', 'Index'].includes(category)) return 'High';
+    if (category === 'Debt') return 'Low to Moderate';
+    if (category === 'Hybrid' || category === 'Gold') return 'Moderate';
+    if (category === 'Large Cap' || category === 'Index') return 'High';
     return 'Very High';
   };
 
@@ -163,9 +203,10 @@ export default function MutualFundScreener() {
     if (category === 'Large Cap') return 'Stable equity investors';
     if (category === 'Flexi Cap') return 'Diversified equity investors';
     if (category === 'ELSS') return 'Tax saving under 80C';
-    if (category === 'Index') return 'Low-cost passive investors';
-    if (category === 'Debt' || category === 'Liquid') return 'Short-term parking / low volatility';
+    if (category === 'Index') return 'Low-cost passive investing';
+    if (category === 'Debt') return 'Lower volatility / short-term parking';
     if (category === 'Hybrid') return 'Balanced risk investors';
+    if (category === 'Gold') return 'Portfolio hedge';
     return 'General investors';
   };
 
@@ -173,36 +214,45 @@ export default function MutualFundScreener() {
     if (category === 'Index') {
       return {
         expenseRatio: 'Usually Low',
-        aum: 'Check AMC',
+        aum: 'Check AMC / factsheet',
         minSip: '₹100+',
-        exitLoad: 'Check Scheme'
+        exitLoad: 'Check scheme document'
       };
     }
 
-    if (category === 'Debt' || category === 'Liquid') {
+    if (category === 'Debt') {
       return {
         expenseRatio: 'Low to Moderate',
-        aum: 'Check AMC',
+        aum: 'Check AMC / factsheet',
         minSip: '₹100+',
-        exitLoad: 'Usually Low / Nil'
+        exitLoad: 'Usually low / nil'
       };
     }
 
     if (category === 'ELSS') {
       return {
-        expenseRatio: 'Check Factsheet',
-        aum: 'Check AMC',
+        expenseRatio: 'Check factsheet',
+        aum: 'Check AMC / factsheet',
         minSip: '₹500+',
         exitLoad: '3-year lock-in'
       };
     }
 
     return {
-      expenseRatio: 'Check Factsheet',
-      aum: 'Check AMC',
+      expenseRatio: 'Check factsheet',
+      aum: 'Check AMC / factsheet',
       minSip: '₹100+',
-      exitLoad: 'Check Scheme'
+      exitLoad: 'Check scheme document'
     };
+  };
+
+  const isUsefulScheme = (schemeName: string) => {
+    const name = schemeName.toLowerCase();
+
+    if (!name.includes('direct')) return false;
+    if (!name.includes('growth')) return false;
+
+    return !blockedWords.some((word) => name.includes(word));
   };
 
   useEffect(() => {
@@ -231,29 +281,37 @@ export default function MutualFundScreener() {
 
   const selectedSchemes = useMemo(() => {
     const query = search.trim().toLowerCase();
+    const keywords = tabKeywords[activeCategory] || [];
+
+    let filtered = schemes.filter((scheme) => isUsefulScheme(scheme.schemeName));
 
     if (query) {
-      return schemes
-        .filter((scheme) => scheme.schemeName.toLowerCase().includes(query))
-        .slice(0, 20);
+      filtered = filtered.filter((scheme) =>
+        scheme.schemeName.toLowerCase().includes(query)
+      );
+    } else {
+      filtered = filtered.filter((scheme) => {
+        const name = scheme.schemeName.toLowerCase();
+        return keywords.some((keyword) => name.includes(keyword));
+      });
     }
 
-    const keywords = fundKeywordMap[activeCategory] || ['direct growth'];
+    const unique = new Map<string, Scheme>();
 
-    return schemes
-      .filter((scheme) => {
-        const name = scheme.schemeName.toLowerCase();
+    filtered.forEach((scheme) => {
+      const normalizedName = scheme.schemeName
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/direct/g, '')
+        .replace(/growth/g, '')
+        .trim();
 
-        if (!name.includes('direct')) return false;
-        if (!name.includes('growth')) return false;
+      if (!unique.has(normalizedName)) {
+        unique.set(normalizedName, scheme);
+      }
+    });
 
-        return keywords.some((keyword) =>
-          keyword
-            .split(' ')
-            .every((word) => name.includes(word))
-        );
-      })
-      .slice(0, 18);
+    return Array.from(unique.values()).slice(0, 35);
   }, [schemes, activeCategory, search]);
 
   const loadFunds = async () => {
@@ -263,17 +321,33 @@ export default function MutualFundScreener() {
       setExpandedFund(null);
 
       const rows = await Promise.all(
-        selectedSchemes.slice(0, 15).map(async (scheme) => {
+        selectedSchemes.map(async (scheme) => {
           const response = await fetch(`https://api.mfapi.in/mf/${scheme.schemeCode}`);
 
           if (!response.ok) return null;
 
           const details: FundDetails = await response.json();
 
-          const latest = details.data?.[0];
-          const latestNav = Number(latest?.nav || 0);
+          const sortedData = sortNavDataLatestFirst(details.data || []);
+          const latest = sortedData[0];
+
+          if (!latest) return null;
+
+          const latestDate = parseNavDate(latest.date);
+          const latestNav = Number(latest.nav || 0);
           const schemeName = details.meta?.scheme_name || scheme.schemeName;
+
+          if (!isRecentNav(latestDate)) return null;
+
           const category = inferCategory(schemeName, details.meta?.scheme_category);
+
+          if (category === 'Other') return null;
+
+          const oneYearReturn = calculateReturn(sortedData, 365);
+          const threeYearReturn = calculateReturn(sortedData, 1095);
+
+          if (oneYearReturn === null && threeYearReturn === null) return null;
+
           const manual = inferManualFields(category);
 
           return {
@@ -283,12 +357,12 @@ export default function MutualFundScreener() {
             category,
             risk: inferRisk(category),
             latestNav,
-            latestDate: latest?.date || 'N/A',
-            oneMonthReturn: calculateReturn(details.data, 30),
-            sixMonthReturn: calculateReturn(details.data, 180),
-            oneYearReturn: calculateReturn(details.data, 365),
-            threeYearReturn: calculateReturn(details.data, 1095),
-            fiveYearReturn: calculateReturn(details.data, 1825),
+            latestDate,
+            oneMonthReturn: calculateReturn(sortedData, 30),
+            sixMonthReturn: calculateReturn(sortedData, 180),
+            oneYearReturn,
+            threeYearReturn,
+            fiveYearReturn: calculateReturn(sortedData, 1825),
             expenseRatio: manual.expenseRatio,
             aum: manual.aum,
             minSip: manual.minSip,
@@ -298,7 +372,13 @@ export default function MutualFundScreener() {
         })
       );
 
-      setFundRows(rows.filter(Boolean) as FundRow[]);
+      const cleanRows = (rows.filter(Boolean) as FundRow[]).sort((a, b) => {
+        const aValue = a.threeYearReturn ?? a.oneYearReturn ?? 0;
+        const bValue = b.threeYearReturn ?? b.oneYearReturn ?? 0;
+        return bValue - aValue;
+      });
+
+      setFundRows(cleanRows.slice(0, 18));
     } catch (err) {
       setError('Unable to fetch fund details right now. Please try again later.');
     } finally {
@@ -343,7 +423,7 @@ export default function MutualFundScreener() {
             Mutual Fund Screener
           </h2>
           <p className="text-slate-600 max-w-3xl mx-auto">
-            Discover mutual funds by category, risk, investment style and recent NAV-based returns.
+            Discover Indian mutual funds by category, risk, investment style and NAV-based returns.
           </p>
         </div>
 
@@ -370,17 +450,17 @@ export default function MutualFundScreener() {
           <div className="grid lg:grid-cols-4 gap-4 mt-5">
             <div className="lg:col-span-2">
               <label className="block text-sm font-bold mb-2">
-                Search Fund House or Fund Name
+                Optional Search
               </label>
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Optional: HDFC, SBI, ICICI, Parag Parikh..."
+                placeholder="Example: HDFC, SBI, ICICI, Parag Parikh..."
                 className="w-full p-3 rounded-xl border border-slate-300 bg-white text-slate-900"
               />
               <p className="text-xs text-slate-500 mt-2">
-                You can also leave this blank and use the category tabs above.
+                Leave blank and use category tabs if you do not know the fund name.
               </p>
             </div>
 
@@ -417,7 +497,7 @@ export default function MutualFundScreener() {
 
           <div className="mt-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <p className="text-xs text-slate-500">
-              NAV and return data are fetched live from MFAPI. Other fields are factsheet guidance.
+              Old inactive schemes and stale NAV records are automatically removed.
             </p>
 
             <button
@@ -446,10 +526,14 @@ export default function MutualFundScreener() {
                 <h3 className="font-extrabold text-slate-900 mb-2 line-clamp-2">
                   {fund.schemeName}
                 </h3>
-                <p className="text-sm text-slate-600 mb-3">{fund.category} • {fund.risk}</p>
+                <p className="text-sm text-slate-600 mb-3">
+                  {fund.category} • {fund.risk}
+                </p>
                 <div className="flex justify-between text-sm">
                   <span>3Y Return</span>
-                  <strong className="text-emerald-700">{formatPercent(fund.threeYearReturn)}</strong>
+                  <strong className="text-emerald-700">
+                    {formatPercent(fund.threeYearReturn)}
+                  </strong>
                 </div>
                 <div className="flex justify-between text-sm mt-1">
                   <span>Latest NAV</span>
@@ -467,7 +551,7 @@ export default function MutualFundScreener() {
         ) : (
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[1050px]">
+              <table className="w-full text-left min-w-[980px]">
                 <thead className="bg-slate-100 text-slate-700 text-xs uppercase">
                   <tr>
                     <th className="p-4">Fund</th>
@@ -486,7 +570,7 @@ export default function MutualFundScreener() {
                   {filteredRows.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="p-6 text-center text-slate-500">
-                        No funds found. Try another category or search term.
+                        No suitable active funds found for this filter. Try another category.
                       </td>
                     </tr>
                   ) : (
@@ -508,16 +592,9 @@ export default function MutualFundScreener() {
                             </span>
                           </td>
 
-                          <td className="p-4 text-sm font-semibold">
-                            {fund.risk}
-                          </td>
+                          <td className="p-4 text-sm font-semibold">{fund.risk}</td>
 
-                          <td className="p-4">
-                            <div className="font-bold">{formatNav(fund.latestNav)}</div>
-                            <div className="text-xs text-slate-500">
-                              Updated: {formatDate(fund.latestDate)}
-                            </div>
-                          </td>
+                          <td className="p-4 font-bold">{formatNav(fund.latestNav)}</td>
 
                           <td className="p-4 font-semibold">{formatPercent(fund.oneYearReturn)}</td>
                           <td className="p-4 font-bold text-emerald-700">{formatPercent(fund.threeYearReturn)}</td>
@@ -547,8 +624,12 @@ export default function MutualFundScreener() {
                               <div className="grid md:grid-cols-4 gap-4">
                                 <div className="bg-white border border-slate-200 rounded-xl p-4">
                                   <h4 className="font-bold mb-3">NAV Details</h4>
-                                  <p className="text-sm mb-2"><strong>Latest NAV:</strong> {formatNav(fund.latestNav)}</p>
-                                  <p className="text-sm"><strong>Updated:</strong> {formatDate(fund.latestDate)}</p>
+                                  <p className="text-sm mb-2">
+                                    <strong>Latest NAV:</strong> {formatNav(fund.latestNav)}
+                                  </p>
+                                  <p className="text-sm text-slate-500">
+                                    NAV date is hidden in the table to avoid confusion. Only recent active NAV records are shown.
+                                  </p>
                                 </div>
 
                                 <div className="bg-white border border-slate-200 rounded-xl p-4">
@@ -586,13 +667,14 @@ export default function MutualFundScreener() {
         )}
 
         <div className="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 text-sm text-amber-900 leading-relaxed">
-          <strong>Important:</strong> NAV and return calculations are based on live MFAPI NAV history.
+          <strong>Important:</strong> NAV and return calculations are based on MFAPI NAV history.
+          Old inactive schemes, stale NAV records and funds without enough return history are filtered out.
           Expense ratio, AUM, exit load, fund manager, holdings and sector allocation are not available from this free NAV API.
-          For a fully professional screener with live factsheet data, you need a paid mutual fund data API or monthly AMC factsheet update system.
+          For a fully professional screener with live factsheet data, use a paid data API or monthly AMC factsheet update system.
         </div>
 
         <p className="text-xs text-slate-500 mt-5 leading-relaxed">
-          Disclaimer: This tool is for educational purposes only. Returns are calculated from available NAV history and may differ from official fund-house returns due to date availability and calculation method. Please verify scheme documents, riskometer, expense ratio, exit load and factsheet before investing.
+          Disclaimer: This tool is for educational purposes only. Returns are calculated from available NAV history and may differ from official AMC returns due to date availability and calculation method. Please verify scheme documents, riskometer, expense ratio, exit load and factsheet before investing.
         </p>
       </div>
     </section>
