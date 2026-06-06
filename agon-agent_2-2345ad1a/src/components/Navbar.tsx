@@ -6,7 +6,8 @@ import {
   BookOpen,
   Layers,
   GraduationCap,
-  PiggyBank
+  PiggyBank,
+  TrendingUp
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -19,6 +20,7 @@ interface NavbarProps {
     | 'emi'
     | 'fd'
     | 'incometax'
+    | 'mutualfund'
     | 'glossary'
     | 'blogs';
   setActiveTab: (
@@ -31,6 +33,7 @@ interface NavbarProps {
       | 'emi'
       | 'fd'
       | 'incometax'
+      | 'mutualfund'
       | 'glossary'
       | 'blogs'
   ) => void;
@@ -67,6 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'emi', label: 'EMI', icon: Calculator },
     { id: 'fd', label: 'FD', icon: Calculator },
     { id: 'incometax', label: 'Tax', icon: Calculator },
+    { id: 'mutualfund', label: 'Mutual Funds', icon: TrendingUp },
     { id: 'finder', label: 'Quiz', icon: Sparkles },
     { id: 'blogs', label: 'Blogs', icon: BookOpen },
     { id: 'glossary', label: 'Glossary', icon: GraduationCap }
