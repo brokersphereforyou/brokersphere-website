@@ -14,6 +14,7 @@ import InvestmentCalculator from './components/InvestmentCalculator';
 import EmiCalculator from './components/EmiCalculator';
 import FdCalculator from './components/FdCalculator';
 import IncomeTaxCalculator from './components/IncomeTaxCalculator';
+import MutualFundScreener from './components/MutualFundScreener';
 import { 
   Search, 
   Sparkles, 
@@ -34,7 +35,7 @@ import {
 
 export default function App() {
   // Navigation states
-const [activeTab, setActiveTab] = useState<'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'emi' | 'fd' | 'incometax' | 'glossary' | 'blogs'>('brokers');
+const [activeTab, setActiveTab] = useState<'brokers' | 'compare' | 'finder' | 'calculator' | 'investment' | 'emi' | 'fd' | 'incometax' | 'mutualfund' | 'glossary' | 'blogs'>('brokers');
 const [selectedBrokerId, setSelectedBrokerId] = useState<string | null>(null);
 const [viewMode, setViewMode] = useState<'table' | 'cards'>('table'); // Default to table for easy comparison format!
 
@@ -768,6 +769,12 @@ const [viewMode, setViewMode] = useState<'table' | 'cards'>('table'); // Default
              <div className="space-y-6">
               <IncomeTaxCalculator />
             </div>
+            )}
+
+            {activeTab === 'mutualfund' && (
+             <div className="space-y-6">
+              <MutualFundScreener />
+           </div>
             )}
             
             {/* TAB 5: TRADING GLOSSARY */}
