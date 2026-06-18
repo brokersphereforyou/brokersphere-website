@@ -77,6 +77,35 @@ const getInitialTab = (): ActiveTab => {
   return pathToTab[window.location.pathname] || 'brokers';
 };
 
+const setMetaTag = (
+  selector: string,
+  attributeName: string,
+  attributeValue: string,
+  content: string
+) => {
+  let tag = document.querySelector(selector);
+
+  if (!tag) {
+    tag = document.createElement('meta');
+    tag.setAttribute(attributeName, attributeValue);
+    document.head.appendChild(tag);
+  }
+
+  tag.setAttribute('content', content);
+};
+
+const setCanonicalUrl = (url: string) => {
+  let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.setAttribute('rel', 'canonical');
+    document.head.appendChild(canonical);
+  }
+
+  canonical.setAttribute('href', url);
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>(getInitialTab());
   const [selectedBrokerId, setSelectedBrokerId] = useState<string | null>(null);
@@ -117,6 +146,113 @@ export default function App() {
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
+
+
+  useEffect(() => {
+    const seoData: Record<ActiveTab, { title: string; description: string }> = {
+      brokers: {
+        title: 'Best Demat Account Comparison India 2026 | BrokerSphere',
+        description:
+          'Compare Zerodha, Groww, Upstox, Angel One, Dhan and other trading platforms in India with brokerage, AMC, DP charges, features and account opening details.'
+      },
+      compare: {
+        title: 'Compare Stock Brokers in India 2026 | BrokerSphere',
+        description:
+          'Compare Indian stock brokers side by side by brokerage, AMC, account opening charges, trading tools, features and suitability.'
+      },
+      finder: {
+        title: 'Best Broker Finder Quiz India | BrokerSphere',
+        description:
+          'Find the best stock broker in India based on your capital, trading style, experience level and investment needs.'
+      },
+      calculator: {
+        title: 'Brokerage Calculator India 2026 | BrokerSphere',
+        description:
+          'Calculate annual brokerage charges, DP charges, intraday fees and trading platform costs for Indian stock brokers.'
+      },
+      investment: {
+        title: 'SIP Calculator India 2026 | BrokerSphere',
+        description:
+          'Calculate SIP and lumpsum mutual fund returns with estimated tax, capital gains and net take-home amount.'
+      },
+      emi: {
+        title: 'EMI Calculator India 2026 | BrokerSphere',
+        description:
+          'Calculate loan EMI, total interest, total repayment and year-wise principal and interest breakup.'
+      },
+      fd: {
+        title: 'FD Calculator India 2026 | BrokerSphere',
+        description:
+          'Calculate fixed deposit maturity amount, interest earned and estimated returns for Indian FD investments.'
+      },
+      incometax: {
+        title: 'Income Tax Calculator India FY 2026-27 | BrokerSphere',
+        description:
+          'Compare old regime and new regime income tax, deductions, HRA, take-home salary and tax-saving scenarios.'
+      },
+      crypto: {
+        title: 'Best Crypto Exchanges in India 2026 | BrokerSphere',
+        description:
+          'Compare Indian and global crypto exchanges by fees, INR support, coins, crypto SIP, staking, options and futures.'
+      },
+      mutualfund: {
+        title: 'Mutual Fund Screener India 2026 | BrokerSphere',
+        description:
+          'Screen mutual funds by category, returns, risk level, SIP suitability and long-term investment options.'
+      },
+      glossary: {
+        title: 'Stock Market Glossary India | BrokerSphere',
+        description:
+          'Learn important stock market, brokerage, demat account, mutual fund and trading terms in simple language.'
+      },
+      blogs: {
+        title: 'Investment Blogs India 2026 | BrokerSphere',
+        description:
+          'Read guides on demat accounts, stock brokers, SIP, mutual funds, crypto exchanges, trading charges and tax-saving investments.'
+      }
+    };
+
+    const currentSeo = seoData[activeTab];
+    const pageUrl = `https://www.brokersphere.in${tabToPath[activeTab]}`;
+
+    document.title = currentSeo.title;
+
+    setMetaTag('meta[name="description"]', 'name', 'description', currentSeo.description);
+
+    setMetaTag('meta[property="og:title"]', 'property', 'og:title', currentSeo.title);
+    setMetaTag(
+      'meta[property="og:description"]',
+      'property',
+      'og:description',
+      currentSeo.description
+    );
+    setMetaTag('meta[property="og:url"]', 'property', 'og:url', pageUrl);
+    setMetaTag('meta[property="og:type"]', 'property', 'og:type', 'website');
+    setMetaTag('meta[property="og:site_name"]', 'property', 'og:site_name', 'BrokerSphere');
+    setMetaTag(
+      'meta[property="og:image"]',
+      'property',
+      'og:image',
+      'https://www.brokersphere.in/favicon.svg'
+    );
+
+    setMetaTag('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
+    setMetaTag('meta[name="twitter:title"]', 'name', 'twitter:title', currentSeo.title);
+    setMetaTag(
+      'meta[name="twitter:description"]',
+      'name',
+      'twitter:description',
+      currentSeo.description
+    );
+    setMetaTag(
+      'meta[name="twitter:image"]',
+      'name',
+      'twitter:image',
+      'https://www.brokersphere.in/favicon.svg'
+    );
+
+    setCanonicalUrl(pageUrl);
+  }, [activeTab]);
 
   const syncAffiliateLinks = () => {
     const saved = localStorage.getItem('broker_affiliate_links');
